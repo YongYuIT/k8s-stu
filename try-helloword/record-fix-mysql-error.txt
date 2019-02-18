@@ -1,0 +1,30 @@
+$ sudo systemctl start etcd docker kube-apiserver kube-controller-manager kube-scheduler kubelet kube-proxy
+$ kubectl get nodes
+$ kubectl get rc
+$ kubectl delete rc mysql myweb
+$ kubectl get pod
+$ kubectl get svc
+$ kubectl delete svc mysql myweb
+
+$ kubectl create -f mysql-rc.yaml
+$ kubectl create -f mysql-svc.yaml
+$ kubectl create -f myweb-rc.yaml
+$ kubectl create -f myweb-svc.yaml
+
+$ kubectl get pod
+NAME          READY     STATUS    RESTARTS   AGE
+mysql-w3vlh   1/1       Running   0          1h
+myweb-0b7l1   1/1       Running   0          49s
+myweb-ht5xc   1/1       Running   0          49s
+myweb-jvgkz   1/1       Running   0          49s
+myweb-s11pj   1/1       Running   0          49s
+myweb-tqj1b   1/1       Running   0          49s
+$ kubectl logs myweb-tqj1b >> myweb-0b7l1.log
+$ kubectl logs ... ...
+java.net.UnknownHostException: mysql: Name or service not known
+$ kubectl describe pods/myweb-0pflg
+kubelet does not have ClusterDNS IP configured and cannot create Pod using "ClusterFirst" policy. Falling back to DNSDefault policy.
+$ sudo docker ps
+$ sudo docker exec -it 80bb531a6194 /bin/bash
+# nslookup mysql
+# apt-get install mysql-client
