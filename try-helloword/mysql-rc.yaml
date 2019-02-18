@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ReplicationController ####type of RC
+metadata:
+  name: mysql ####name of RC, unique
+spec:
+  replicas: 1 ####Num of copy for Pod
+  selector:
+    app: mysql ####expected label for Pod
+  template: ####Pod instance
+    metadata:
+      labels:
+         app: mysql ####label for Pod copy
+    spec:
+      containers: ####def of container in Pod
+      - name: mysql ####container name
+        image: mysql ####container img
+        ports:
+        - containerPort: 3306
+        env: ####env params in container
+        - name: MYSQL_ROOT_PASSWORD
+          value: "123456"
+

@@ -1,0 +1,100 @@
+####stop firewall
+$ sudo systemctl disable firewalld
+$ sudo systemctl stop firewalld
+####install k8s
+$ sudo wget -O /etc/yum.repos.d/CentOS7-Aliyun.repo http://mirrors.aliyun.com/repo/Centos-7.repo
+$ sudo yum update
+$ sudo yum install etcd kubernetes
+####start k8s for single
+$ sudo rm -rf /var/log/messages
+# echo > /var/log/messages
+$ sudo systemctl start etcd
+$ sudo systemctl start docker
+$ sudo systemctl start kube-apiserver
+$ sudo systemctl start kube-controller-manager
+$ sudo systemctl start kube-scheduler
+$ sudo systemctl start kubelet
+$ sudo systemctl start kube-proxy
+####create mysql RC
+$ kubectl get nodes
+$ kubectl create -f mysql-rc.yaml
+replicationcontroller "mysql" created
+$ kubectl get rc
+NAME      DESIRED   CURRENT   READY     AGE
+mysql     1         0         0         45s
+####check log
+$ kubectl delete rc mysql
+$ sudo journalctl -xe
+unable to create pods: No API token found for service account
+$ sudo openssl genrsa -out /etc/kubernetes/serviceaccount.key 2048
+####modify /etc/kubernetes/apiserver, add KUBE_API_ARGS="--service_account_key_file=/etc/kubernetes/serviceaccount.key"
+$ sudo gedit /etc/kubernetes/apiserver
+####modify /etc/kubernetes/controller-manager, add KUBE_CONTROLLER_MANAGER_ARGS="--service_account_private_key_file=/etc/kubernetes/serviceaccount.key"
+$ sudo gedit /etc/kubernetes/controller-manager
+$ sudo systemctl restart etcd docker kube-apiserver kube-controller-manager kube-scheduler kubelet kube-proxy
+$ kubectl create -f mysql-rc.yaml
+$ kubectl get pods
+NAME          READY     STATUS              RESTARTS   AGE
+mysql-v2vhz   0/1       ContainerCreating   0          57s
+$ sudo journalctl -xe >> log.txt
+####err_1 error: No such image: registry.access.redhat.com/rhel7/pod-infrastructure:latest
+####err_2 Failed to create pod infra container: ImagePullBackOff; Skipping pod "mysql-m9mv1_default(5ab011d9-331c-11e9-ae22-005056213d50)": Back-off pulling image "registry.access.redhat.com/rhel7/pod-infrastructure:latest"
+####for err_1
+$ sudo yum install *rhsm* -y
+####for err_2
+$ wget http://mirror.centos.org/centos/7/os/x86_64/Packages/python-rhsm-certificates-1.19.10-1.el7_4.x86_64.rpm
+# rpm2cpio python-rhsm-certificates-1.19.10-1.el7_4.x86_64.rpm | cpio -iv --to-stdout ./etc/rhsm/ca/redhat-uep.pem | tee /etc/rhsm/ca/redhat-uep.pem
+$ sudo docker pull registry.access.redhat.com/rhel7/pod-infrastructure:latest
+$ kubectl delete rc mysql
+$ kubectl create -f mysql-rc.yaml
+$ kubectl get rc
+$ kubectl get pod
+NAME          READY     STATUS    RESTARTS   AGE
+mysql-w68hp   1/1       Running   0          2m
+$ kubectl logs mysql-w68hp
+$ sudo docker ps | grep mysql
+####create mysql Service
+$ kubectl create -f mysql-svc.yaml
+$ kubectl get svc
+NAME         CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
+kubernetes   10.254.0.1     <none>        443/TCP    2d
+mysql        10.254.15.58   <none>        3306/TCP   6s
+####create myweb RC
+$ kubectl create -f myweb-rc.yaml
+$ kubectl get pod
+NAME          READY     STATUS              RESTARTS   AGE
+mysql-w68hp   1/1       Running             0          28m
+myweb-26cjl   0/1       ContainerCreating   0          1m
+myweb-3xg7m   0/1       ContainerCreating   0          1m
+myweb-gj41f   0/1       ContainerCreating   0          1m
+myweb-h6bn2   0/1       ContainerCreating   0          1m
+myweb-rnsqw   0/1       ContainerCreating   0          1m
+$ sudo journalctl -xe >> log.txt
+error: No such image: kubeguide/tomcat-app:v1
+$ sudo docker pull kubeguide/tomcat-app:v1
+####recreate myweb-rc
+$ kubectl get pod
+NAME          READY     STATUS    RESTARTS   AGE
+mysql-w68hp   1/1       Running   0          34m
+myweb-29b46   1/1       Running   0          9s
+myweb-363lx   1/1       Running   0          9s
+myweb-5gs9j   1/1       Running   0          9s
+myweb-bnm3z   1/1       Running   0          9s
+myweb-kp6gg   1/1       Running   0          9s
+####create myweb Service
+$ kubectl create -f myweb-svc.yaml
+$ kubectl get svc
+NAME         CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+kubernetes   10.254.0.1       <none>        443/TCP          2d
+mysql        10.254.15.58     <none>        3306/TCP         24m
+myweb        10.254.134.144   <nodes>       8080:30001/TCP   7s
+####open http://0.0.0.0:30001/demo/
+Error:com.mysql.jdbc.exceptions.jdbc4.CommunicationsException: Communications link failure The last packet sent successfully to the server was 0 milliseconds ago. The driver has not received any packets from the server.
+$ sudo docker exec -it --user mysql 41a69793fdc4 /bin/bash
+$ sudo apt-get install vim
+$ sudo vim /etc/mysql/my.cnf
+add 'wait_timeout=1814400'
+$ mysqld stop
+$ mysqld start
+
+
