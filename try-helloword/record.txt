@@ -90,11 +90,4 @@ mysql        10.254.15.58     <none>        3306/TCP         24m
 myweb        10.254.134.144   <nodes>       8080:30001/TCP   7s
 ####open http://0.0.0.0:30001/demo/
 Error:com.mysql.jdbc.exceptions.jdbc4.CommunicationsException: Communications link failure The last packet sent successfully to the server was 0 milliseconds ago. The driver has not received any packets from the server.
-$ sudo docker exec -it --user mysql 41a69793fdc4 /bin/bash
-$ sudo apt-get install vim
-$ sudo vim /etc/mysql/my.cnf
-add 'wait_timeout=1814400'
-$ mysqld stop
-$ mysqld start
-
 
