@@ -1,0 +1,15 @@
+####clean env
+$ sudo systemctl restart etcd docker kube-apiserver kube-controller-manager kube-scheduler kubelet kube-proxy
+$ kubectl get nodes
+$ kubectl get rc
+$ kubectl delete rc mysql myweb
+$ kubectl get pod
+$ kubectl get svc
+$ kubectl delete svc mysql myweb
+
+$ kubectl create -f myweb-rc.yaml
+$ kubectl get rc
+$ kubectl create -f myweb-svc.yaml
+$ kubectl get svc
+
+

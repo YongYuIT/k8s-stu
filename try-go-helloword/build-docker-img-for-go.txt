@@ -1,0 +1,68 @@
+$ sudo systemctl start docker
+$ sudo docker search ubuntu
+$ sudo docker pull docker.io/ubuntu
+$ sudo docker images | grep ubuntu
+docker.io/ubuntu                                      latest              47b19964fb50        12 days ago         88.1 MB
+$ sudo docker run -t -i ubuntu /bin/bash
+
+####disable ipv6
+$ sudo vim /etc/default/grub
+####GRUB_CMDLINE_LINUX="ipv6.disable=1 crashkernel=auto rd.lvm.lv=centos/root rd.lvm.lv=centos/swap rhgb quiet"
+$ sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+
+
+####install go env
+# apt-get update
+# apt-get install wget vim
+# wget https://studygolang.com/dl/golang/go1.11.5.linux-amd64.tar.gz
+# mkdir -p go_env/go-path
+# mv go1.11.5.linux-amd64.tar.gz go_env/
+# cd go_env/
+# tar zxvf go1.11.5.linux-amd64.tar.gz
+# vim ~/.bashrc
+export GOROOT=/go_env/go
+export GOPATH=/go_env/go-path
+export PATH=$PATH:$GOROOT/bin
+export PATH=$PATH:$GOPATH/bin
+# go version 
+go version go1.11.5 linux/amd64
+# exit
+
+####save img
+$ sudo docker ps -a | grep ubuntu
+3781027fac12        ubuntu                                                       "/bin/bash"              19 minutes ago      Exited (0) 7 seconds ago                        brave_bohr
+$ sudo docker commit -m="update ubuntu with Go env" -a="YongYuIT" 3781027fac12 ubuntu-go-20190219001
+$ sudo docker images | grep ubuntu
+$ sudo docker images | grep ubuntu
+ubuntu-go-20190219001                                 latest              77b80cf60b95        22 seconds ago      695 MB
+docker.io/ubuntu                                      latest              47b19964fb50        12 days ago         88.1 MB
+
+####dev go proj
+$ sudo docker run -t -i -p 8888:8080 ubuntu-go-20190219001 /bin/bash
+# apt-get install git
+# git clone https://github.com/YongYuIT/Go-Stu.git Go-Stu20190219001
+# cd Go-Stu20190219001/HttpServer_1/
+# go run main.go
+# exit
+$ sudo docker commit -m="update ubuntu with Go Proj" -a="YongYuIT" f18e33585f97 ubuntu-go-20190219002
+
+####update source code
+$ sudo docker run -t -i -p 8888:8080 ubuntu-go-20190219002 /bin/bash
+# cd Go-Stu20190219001/HttpServer_1/
+# git pull
+# exit
+$ sudo docker commit -m="update source code" -a="YongYuIT" 29e88f5174e8 ubuntu-go-20190219003
+
+
+####test img with proj
+$ sudo docker run -t -i -p 8888:8080 ubuntu-go-20190219003 /bin/bash
+# cd Go-Stu20190219001/HttpServer_1/
+# go run main.go &
+# apt-get install net-tools
+# netstat -tunlp |grep 8080
+# curl 0.0.0.0:8080/test
+
+
+
+
+
