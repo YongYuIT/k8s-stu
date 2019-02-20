@@ -1,0 +1,5 @@
+####after node1  built, run on master
+$ kubectl get node
+NAME              STATUS    AGE
+192.168.186.138   Ready     14m
+
