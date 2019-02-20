@@ -1,0 +1,27 @@
+$ sudo wget -O /etc/yum.repos.d/CentOS7-Aliyun.repo http://mirrors.aliyun.com/repo/Centos-7.repo
+$ sudo yum update
+$ sudo yum install kubernetes
+
+$ ls /usr/lib/systemd/system/kubelet.service
+$ cat /usr/lib/systemd/system/kubelet.service
+$ cat /etc/kubernetes/kubelet
+
+####open port 10250 on firewall
+####modify /etc/kubernetes/kubelet
+KUBELET_ADDRESS="--address=0.0.0.0"
+KUBELET_PORT="--port=10250"
+KUBELET_HOSTNAME="--hostname-override=192.168.186.138"
+KUBELET_API_SERVER="--api-servers=http://192.168.186.137:8080"
+
+$ sudo systemctl start kubelet
+$ sudo systemctl status kubelet -l
+
+$ ls /usr/lib/systemd/system/kube-proxy.service
+$ cat /usr/lib/systemd/system/kube-proxy.service
+$ cat /etc/kubernetes/proxy
+
+####modify /etc/kubernetes/proxy
+KUBE_PROXY_ARGS="--master=http://192.168.186.137:8080"
+
+$ sudo systemctl start kube-proxy
+$ sudo systemctl status kube-proxy -l
