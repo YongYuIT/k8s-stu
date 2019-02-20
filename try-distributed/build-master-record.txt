@@ -4,7 +4,7 @@ $ sudo yum install kubernetes
 $ ls /usr/lib/systemd/system/kube-apiserver.service
 $ cat /usr/lib/systemd/system/kube-apiserver.service
 $ cat /etc/kubernetes/apiserver
-####open port 2379 on firewall
+####open port 8080 on firewall
 ####modify etcd server address in /etc/kubernetes/apiserver
 KUBE_ETCD_SERVERS="--etcd-servers=http://192.168.186.131:2379"
 KUBE_API_ADDRESS="--insecure-bind-address=0.0.0.0"

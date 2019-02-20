@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ReplicationController ####type of RC
+metadata:
+  name: myweb ####name of RC, unique
+spec:
+  replicas: 5 ####Num of copy for Pod
+  selector:
+    app: myweb ####expected label for Pod
+  template: ####Pod instance
+    metadata:
+      labels:
+         app: myweb ####label for Pod copy
+    spec:
+      containers: ####def of container in Pod
+      - name: myweb ####container name
+        image: ubuntu-go-20190219003 ####container img
+        imagePullPolicy: IfNotPresent
+        command: ["/go_env/go/bin/go"]
+        args: ["run","/Go-Stu20190219001/HttpServer_1/main.go"]
+        ports:
+        - containerPort: 8080
+

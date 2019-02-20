@@ -9,3 +9,14 @@ NAME              STATUS    AGE
 192.168.186.138   Ready     1h
 192.168.186.139   Ready     1m
 
+####test go proj
+####load docker img on node1 & node2
+$ sudo docker load < ubuntu-go-20190219003.tar
+$ sudo docker images
+REPOSITORY              TAG                 IMAGE ID            CREATED             SIZE
+ubuntu-go-20190219003   latest              b5f91c9db0fa        24 hours ago        784 MB
+
+####on master
+$ kubectl create -f myweb-rc.yaml
+$ kubectl create -f myweb-svc.yaml
+$ kubectl create -f mytest-rc.yaml
