@@ -4,9 +4,17 @@ $ sudo yum install kubernetes
 $ ls /usr/lib/systemd/system/kube-apiserver.service
 $ cat /usr/lib/systemd/system/kube-apiserver.service
 $ cat /etc/kubernetes/apiserver
-####modify etcd server add in /etc/kubernetes/apiserver
+####open port 2379 on firewall
+####modify etcd server address in /etc/kubernetes/apiserver
 KUBE_ETCD_SERVERS="--etcd-servers=http://192.168.186.131:2379"
+KUBE_API_ADDRESS="--insecure-bind-address=0.0.0.0"
 
-$ sudo systemctl start docker
 $ sudo systemctl start kube-apiserver
-$ sudo systemctl status kube-apiserver
+$ sudo systemctl status kube-apiserver -l
+
+$ sudo systemctl start kube-controller-manager
+$ sudo systemctl status kube-controller-manager -l
+$ sudo systemctl start kube-scheduler
+$ sudo systemctl status kube-scheduler -l
+$ sudo systemctl start kube-proxy
+$ sudo systemctl status kube-proxy -l
