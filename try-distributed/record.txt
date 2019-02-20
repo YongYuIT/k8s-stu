@@ -3,3 +3,9 @@ $ kubectl get node
 NAME              STATUS    AGE
 192.168.186.138   Ready     14m
 
+####build node2 just like node1, after node2  built, run on master
+$ kubectl get node
+NAME              STATUS    AGE
+192.168.186.138   Ready     1h
+192.168.186.139   Ready     1m
+
