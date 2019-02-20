@@ -1,0 +1,12 @@
+$ sudo wget -O /etc/yum.repos.d/CentOS7-Aliyun.repo http://mirrors.aliyun.com/repo/Centos-7.repo
+$ sudo yum update
+$ sudo yum install kubernetes
+$ ls /usr/lib/systemd/system/kube-apiserver.service
+$ cat /usr/lib/systemd/system/kube-apiserver.service
+$ cat /etc/kubernetes/apiserver
+####modify etcd server add in /etc/kubernetes/apiserver
+KUBE_ETCD_SERVERS="--etcd-servers=http://192.168.186.131:2379"
+
+$ sudo systemctl start docker
+$ sudo systemctl start kube-apiserver
+$ sudo systemctl status kube-apiserver
