@@ -5,11 +5,13 @@ $ ls /usr/lib/systemd/system/etcd.service
 $ cat /usr/lib/systemd/system/etcd.service
 $ cat /etc/etcd/etcd.conf
 ETCD_LISTEN_CLIENT_URLS="http://localhost:2379"
+####modify /etc/etcd/etcd.conf
+ETCD_LISTEN_CLIENT_URLS="http://0.0.0.0:2379"
+####open port 2379 on firewall
 
 $ sudo systemctl start etcd
 $ etcdctl cluster-health
-member 8e9e05c52164694d is healthy: got healthy result from http://localhost:2379
+member 8e9e05c52164694d is healthy: got healthy result from http://192.168.186.131:2379
 cluster is healthy
-####open port 2379 on firewall
 
 
