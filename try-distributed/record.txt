@@ -55,5 +55,30 @@ $ wget http://mirror.centos.org/centos/7/os/x86_64/Packages/python-rhsm-certific
 # rpm2cpio python-rhsm-certificates-1.19.10-1.el7_4.x86_64.rpm | cpio -iv --to-stdout ./etc/rhsm/ca/redhat-uep.pem | tee /etc/rhsm/ca/redhat-uep.pem
 $ sudo docker pull registry.access.redhat.com/rhel7/pod-infrastructure:latest
 
+####after Node pulled img, on master
+$ kubectl get pod
+NAME          READY     STATUS    RESTARTS   AGE
+myweb-98rk0   1/1       Running   0          20m
+myweb-9d9pj   1/1       Running   0          20m
+myweb-b7gpw   1/1       Running   0          20m
+myweb-l64lq   1/1       Running   0          20m
+myweb-q8vg1   1/1       Running   0          20m
 $ kubectl create -f myweb-svc.yaml
 $ kubectl create -f mytest-rc.yaml
+$ kubectl get pod
+NAME           READY     STATUS    RESTARTS   AGE
+mytest-xkbp2   1/1       Running   0          2s
+myweb-98rk0    1/1       Running   0          21m
+myweb-9d9pj    1/1       Running   0          21m
+myweb-b7gpw    1/1       Running   0          21m
+myweb-l64lq    1/1       Running   0          21m
+myweb-q8vg1    1/1       Running   0          21m
+$ kubectl get svc
+NAME         CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+kubernetes   10.254.0.1      <none>        443/TCP          18h
+myweb        10.254.201.66   <nodes>       8080:30001/TCP   10m
+$ kubectl exec -it mytest-xkbp2 -- /bin/bash
+# curl 10.254.201.66:8080/test
+hello
+
+
