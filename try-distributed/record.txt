@@ -18,5 +18,42 @@ ubuntu-go-20190219003   latest              b5f91c9db0fa        24 hours ago    
 
 ####on master
 $ kubectl create -f myweb-rc.yaml
+$ kubectl get rc
+NAME      DESIRED   CURRENT   READY     AGE
+myweb     5         0         0         13s
+$ sudo journalctl -xe
+unable to create pods: No API token found for service account "default"
+$ sudo openssl genrsa -out /etc/kubernetes/serviceaccount.key 2048
+####modify /etc/kubernetes/apiserver, add KUBE_API_ARGS="--service_account_key_file=/etc/kubernetes/serviceaccount.key"
+$ sudo gedit /etc/kubernetes/apiserver
+####modify /etc/kubernetes/controller-manager, add KUBE_CONTROLLER_MANAGER_ARGS="--service_account_private_key_file=/etc/kubernetes/serviceaccount.key"
+$ sudo gedit /etc/kubernetes/controller-manager
+$ sudo systemctl restart kube-apiserver kube-controller-manager kube-scheduler kube-proxy
+$ kubectl get rc
+NAME      DESIRED   CURRENT   READY     AGE
+myweb     5         5         0         5m
+$ kubectl get pod
+NAME          READY     STATUS              RESTARTS   AGE
+myweb-98rk0   0/1       ContainerCreating   0          41s
+myweb-9d9pj   0/1       ContainerCreating   0          41s
+myweb-b7gpw   0/1       ContainerCreating   0          41s
+myweb-l64lq   0/1       ContainerCreating   0          41s
+myweb-q8vg1   0/1       ContainerCreating   0          41s
+$ kubectl describe pod myweb-98rk0
+Node:		192.168.186.138/192.168.186.138
+Events:
+  FirstSeen	LastSeen	Count	From				SubObjectPath	Type		Reason		Message
+  ---------	--------	-----	----				-------------	--------	------		-------
+  5m		5m		1	{default-scheduler }				Normal		Scheduled	Successfully assigned myweb-98rk0 to 192.168.186.138
+  5m		2m		5	{kubelet 192.168.186.138}			Warning		FailedSync	Error syncing pod, skipping: failed to "StartContainer" for "POD" with ErrImagePull: "image pull failed for registry.access.redhat.com/rhel7/pod-infrastructure:latest, this may be because there are no credentials on this request.  details: (open /etc/docker/certs.d/registry.access.redhat.com/redhat-ca.crt: no such file or directory)"
+
+  5m	6s	21	{kubelet 192.168.186.138}		Warning	FailedSync	Error syncing pod, skipping: failed to "StartContainer" for "POD" with ImagePullBackOff: "Back-off pulling image \"registry.access.redhat.com/rhel7/pod-infrastructure:latest\""
+
+####on Node
+$ sudo yum install *rhsm* -y
+$ wget http://mirror.centos.org/centos/7/os/x86_64/Packages/python-rhsm-certificates-1.19.10-1.el7_4.x86_64.rpm
+# rpm2cpio python-rhsm-certificates-1.19.10-1.el7_4.x86_64.rpm | cpio -iv --to-stdout ./etc/rhsm/ca/redhat-uep.pem | tee /etc/rhsm/ca/redhat-uep.pem
+$ sudo docker pull registry.access.redhat.com/rhel7/pod-infrastructure:latest
+
 $ kubectl create -f myweb-svc.yaml
 $ kubectl create -f mytest-rc.yaml
