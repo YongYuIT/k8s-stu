@@ -123,10 +123,10 @@ localhost.localdomain   Ready    master   8m36s   v1.13.3
 ####open 6443 and 10250 on node machine
 ####run node on an other machine
 ####install docker kubelet kubeadm, start docker and kubelet
-$ sudo kubeadm join 192.168.186.141:6443 --token qxvyyv.llfc48p3bhvtdn1i --discovery-token-ca-cert-hash sha256:2bc67c4cc6cddb534a15a7bfd1f4bf5229778ab9a4bf8619a5b016af30d318d8
+$ sudo kubeadm join 192.168.186.142:6443 --token cqtaju.1t795vy3rp4rv3zj --discovery-token-ca-cert-hash sha256:ff83161dcff8514168ec1feb85fe98ef79353484952e7ef079162e5725fa96ce
 [ERROR Swap]: running with swap on is not supported.
 $ sudo swapoff -a
-$ sudo kubeadm join 192.168.186.141:6443 --token qxvyyv.llfc48p3bhvtdn1i --discovery-token-ca-cert-hash sha256:2bc67c4cc6cddb534a15a7bfd1f4bf5229778ab9a4bf8619a5b016af30d318d8
+$ sudo kubeadm join 192.168.186.142:6443 --token cqtaju.1t795vy3rp4rv3zj --discovery-token-ca-cert-hash sha256:ff83161dcff8514168ec1feb85fe98ef79353484952e7ef079162e5725fa96ce
 This node has joined the cluster:
 * Certificate signing request was sent to apiserver and a response was received.
 * The Kubelet was informed of the new secure connection details.
