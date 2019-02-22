@@ -112,8 +112,26 @@ $ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 $ kubectl get node
 NAME                    STATUS     ROLES    AGE     VERSION
 localhost.localdomain   NotReady   master   4m37s   v1.13.3
+####apply add on, ref to https://www.cnblogs.com/qwangxiao/p/9397983.html
+$ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+$ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/k8s-manifests/kube-flannel-rbac.yml
+$ kubectl get node
+NAME                    STATUS     ROLES    AGE     VERSION
+localhost.localdomain   NotReady   master   4m37s   v1.13.3
 
-####run node on an other machine
 ####open 6443 and 10250 on master machine
+####open 6443 and 10250 on node machine
+####run node on an other machine
+####install docker kubelet kubeadm, start docker and kubelet
 $ sudo kubeadm join 192.168.186.141:6443 --token qxvyyv.llfc48p3bhvtdn1i --discovery-token-ca-cert-hash sha256:2bc67c4cc6cddb534a15a7bfd1f4bf5229778ab9a4bf8619a5b016af30d318d8
+[ERROR Swap]: running with swap on is not supported.
+$ sudo swapoff -a
+$ sudo kubeadm join 192.168.186.141:6443 --token qxvyyv.llfc48p3bhvtdn1i --discovery-token-ca-cert-hash sha256:2bc67c4cc6cddb534a15a7bfd1f4bf5229778ab9a4bf8619a5b016af30d318d8
+This node has joined the cluster:
+* Certificate signing request was sent to apiserver and a response was received.
+* The Kubelet was informed of the new secure connection details.
 
+Run 'kubectl get nodes' on the master to see this node join the cluster.
+
+####on master
+$ kubectl get nodes
