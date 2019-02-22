@@ -104,3 +104,16 @@ You can now join any number of machines by running the following on each node
 as root:
 
   kubeadm join 192.168.186.141:6443 --token qxvyyv.llfc48p3bhvtdn1i --discovery-token-ca-cert-hash sha256:2bc67c4cc6cddb534a15a7bfd1f4bf5229778ab9a4bf8619a5b016af30d318d8
+
+####run master
+$ mkdir -p $HOME/.kube
+$ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+$ sudo chown $(id -u):$(id -g) $HOME/.kube/config
+$ kubectl get node
+NAME                    STATUS     ROLES    AGE     VERSION
+localhost.localdomain   NotReady   master   4m37s   v1.13.3
+
+####run node on an other machine
+####open 6443 and 10250 on master machine
+$ sudo kubeadm join 192.168.186.141:6443 --token qxvyyv.llfc48p3bhvtdn1i --discovery-token-ca-cert-hash sha256:2bc67c4cc6cddb534a15a7bfd1f4bf5229778ab9a4bf8619a5b016af30d318d8
+
