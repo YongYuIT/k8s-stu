@@ -61,14 +61,14 @@ $ sudo docker pull mirrorgooglecontainers/kube-scheduler:v1.13.0
 $ sudo docker pull mirrorgooglecontainers/kube-proxy:v1.13.0
 $ sudo docker pull mirrorgooglecontainers/pause:3.1
 $ sudo docker pull mirrorgooglecontainers/etcd:3.2.24
-$ sudo docker pull mirrorgooglecontainers/coredns:1.2.6
+$ sudo docker pull coredns/coredns:1.2.6
 $ sudo docker images
-REPOSITORY                                          TAG                 IMAGE ID            CREATED             SIZE
+REPOSITORY                                                 TAG                 IMAGE ID            CREATED             SIZE
 docker.io/mirrorgooglecontainers/kube-proxy                v1.13.0             8fa56d18961f        2 months ago        80.2 MB
-docker.io/mirrorgooglecontainers/kube-controller-manager   v1.13.0             d82530ead066        2 months ago        146 MB
-docker.io/mirrorgooglecontainers/kube-scheduler            v1.13.0             9508b7d8008d        2 months ago        79.6 MB
 docker.io/mirrorgooglecontainers/kube-apiserver            v1.13.0             f1ff9b7e3d6e        2 months ago        181 MB
-docker.io/mirrorgooglecontainers/coredns                   1.2.6               f59dcacceff4        3 months ago        40 MB
+docker.io/mirrorgooglecontainers/kube-scheduler            v1.13.0             9508b7d8008d        2 months ago        79.6 MB
+docker.io/mirrorgooglecontainers/kube-controller-manager   v1.13.0             d82530ead066        2 months ago        146 MB
+docker.io/coredns/coredns                                  1.2.6               f59dcacceff4        3 months ago        40 MB
 docker.io/mirrorgooglecontainers/etcd                      3.2.24              3cab8e1b9802        5 months ago        220 MB
 docker.io/mirrorgooglecontainers/pause                     3.1                 da86e6ba6ca1        14 months ago       742 kB
 $ sudo docker tag 8fa56d18961f k8s.gcr.io/kube-proxy:v1.13.0
@@ -103,21 +103,21 @@ Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
 You can now join any number of machines by running the following on each node
 as root:
 
-  kubeadm join 192.168.186.141:6443 --token qxvyyv.llfc48p3bhvtdn1i --discovery-token-ca-cert-hash sha256:2bc67c4cc6cddb534a15a7bfd1f4bf5229778ab9a4bf8619a5b016af30d318d8
+  kubeadm join 192.168.186.142:6443 --token cqtaju.1t795vy3rp4rv3zj --discovery-token-ca-cert-hash sha256:ff83161dcff8514168ec1feb85fe98ef79353484952e7ef079162e5725fa96ce
 
 ####run master
 $ mkdir -p $HOME/.kube
 $ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 $ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 $ kubectl get node
-NAME                    STATUS     ROLES    AGE     VERSION
-localhost.localdomain   NotReady   master   4m37s   v1.13.3
-####apply add on, ref to https://www.cnblogs.com/qwangxiao/p/9397983.html
+NAME                    STATUS     ROLES    AGE    VERSION
+localhost.localdomain   NotReady   master   108s   v1.13.3
+####apply add on, ref to https://kubernetes.io/docs/concepts/cluster-administration/addons/ https://www.cnblogs.com/qwangxiao/p/9397983.html
 $ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 $ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/k8s-manifests/kube-flannel-rbac.yml
 $ kubectl get node
-NAME                    STATUS     ROLES    AGE     VERSION
-localhost.localdomain   NotReady   master   4m37s   v1.13.3
+NAME                    STATUS   ROLES    AGE     VERSION
+localhost.localdomain   Ready    master   8m36s   v1.13.3
 
 ####open 6443 and 10250 on master machine
 ####open 6443 and 10250 on node machine
