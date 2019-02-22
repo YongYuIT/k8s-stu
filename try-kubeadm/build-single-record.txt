@@ -1,12 +1,12 @@
-####change to ali yum source
+####install docker
+$ sudo yum install -y docker
+####if too slow, change to ali yum source
 $ cd /etc/yum.repos.d/
-$ sudo mv CentOS-Base.repo CentOS-Base.repo.back20190221001
+$ sudo mv CentOS-Base.repo CentOS-Base.repo.back20190222001
 $ sudo wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
 $ sudo yum clean all
 $ sudo yum makecache
 $ sudo yum update
-
-####install docker
 $ sudo yum install -y docker
 $ sudo systemctl start docker
 $ sudo docker version
@@ -30,7 +30,7 @@ Server:
  Experimental:    false
 
 ####install kubelet kubeadm kubectl
-$ sudo yum install kubelet kubeadm kubectl
+$ sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
 No package kubelet available.
 No package kubeadm available.
 No package kubectl available.
@@ -54,3 +54,53 @@ $ sudo kubeadm init --kubernetes-version=v1.13.0 --pod-network-cidr=10.244.0.0/1
 [ERROR ImagePull]: failed to pull image k8s.gcr.io/pause:3.1
 [ERROR ImagePull]: failed to pull image k8s.gcr.io/etcd:3.2.24
 [ERROR ImagePull]: failed to pull image k8s.gcr.io/coredns:1.2.6
+####search imgs on https://hub.docker.com/, ref to https://blog.csdn.net/jinguangliu/article/details/82792617
+$ sudo docker pull mirrorgooglecontainers/kube-apiserver:v1.13.0
+$ sudo docker pull mirrorgooglecontainers/kube-controller-manager:v1.13.0
+$ sudo docker pull mirrorgooglecontainers/kube-scheduler:v1.13.0
+$ sudo docker pull mirrorgooglecontainers/kube-proxy:v1.13.0
+$ sudo docker pull mirrorgooglecontainers/pause:3.1
+$ sudo docker pull mirrorgooglecontainers/etcd:3.2.24
+$ sudo docker pull mirrorgooglecontainers/coredns:1.2.6
+$ sudo docker images
+REPOSITORY                                          TAG                 IMAGE ID            CREATED             SIZE
+docker.io/mirrorgooglecontainers/kube-proxy                v1.13.0             8fa56d18961f        2 months ago        80.2 MB
+docker.io/mirrorgooglecontainers/kube-controller-manager   v1.13.0             d82530ead066        2 months ago        146 MB
+docker.io/mirrorgooglecontainers/kube-scheduler            v1.13.0             9508b7d8008d        2 months ago        79.6 MB
+docker.io/mirrorgooglecontainers/kube-apiserver            v1.13.0             f1ff9b7e3d6e        2 months ago        181 MB
+docker.io/mirrorgooglecontainers/coredns                   1.2.6               f59dcacceff4        3 months ago        40 MB
+docker.io/mirrorgooglecontainers/etcd                      3.2.24              3cab8e1b9802        5 months ago        220 MB
+docker.io/mirrorgooglecontainers/pause                     3.1                 da86e6ba6ca1        14 months ago       742 kB
+$ sudo docker tag 8fa56d18961f k8s.gcr.io/kube-proxy:v1.13.0
+$ sudo docker tag d82530ead066 k8s.gcr.io/kube-controller-manager:v1.13.0
+$ sudo docker tag 9508b7d8008d k8s.gcr.io/kube-scheduler:v1.13.0
+$ sudo docker tag f1ff9b7e3d6e k8s.gcr.io/kube-apiserver:v1.13.0
+$ sudo docker tag f59dcacceff4 k8s.gcr.io/coredns:1.2.6
+$ sudo docker tag 3cab8e1b9802 k8s.gcr.io/etcd:3.2.24
+$ sudo docker tag da86e6ba6ca1 k8s.gcr.io/pause:3.1
+$ sudo docker images
+REPOSITORY                                          TAG                 IMAGE ID            CREATED             SIZE
+k8s.gcr.io/kube-proxy                               v1.13.0             8fa56d18961f        2 months ago        80.2 MB
+k8s.gcr.io/kube-scheduler                           v1.13.0             9508b7d8008d        2 months ago        79.6 MB
+k8s.gcr.io/kube-apiserver                           v1.13.0             f1ff9b7e3d6e        2 months ago        181 MB
+k8s.gcr.io/kube-controller-manager                  v1.13.0             d82530ead066        2 months ago        146 MB
+k8s.gcr.io/coredns                                  1.2.6               f59dcacceff4        3 months ago        40 MB
+k8s.gcr.io/etcd                                     3.2.24              3cab8e1b9802        5 months ago        220 MB
+k8s.gcr.io/pause                                    3.1                 da86e6ba6ca1        14 months ago       742 kB
+$ sudo kubeadm init --kubernetes-version=v1.13.0 --pod-network-cidr=10.244.0.0/16
+Your Kubernetes master has initialized successfully!
+
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+You should now deploy a pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+You can now join any number of machines by running the following on each node
+as root:
+
+  kubeadm join 192.168.186.141:6443 --token qxvyyv.llfc48p3bhvtdn1i --discovery-token-ca-cert-hash sha256:2bc67c4cc6cddb534a15a7bfd1f4bf5229778ab9a4bf8619a5b016af30d318d8
