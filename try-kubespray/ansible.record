@@ -1,0 +1,150 @@
+ref to https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installation-guide
+
+首先在控制机上能ssh上受控机
+打开受控机上22端口
+在受控机上ssh自己，看看ssh服务是由开启
+$ ssh root@0.0.0.0
+在控制机上ssh受控机
+$ ssh root@192.168.186.144
+
+在控制机上查询python版本
+$ python --version
+Python 2.7.5
+安装ansible
+$ sudo yum update
+$ sudo yum install ansible
+$ ansible --version
+ansible 2.4.2.0
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = [u'/home/yong/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/lib/python2.7/site-packages/ansible
+  executable location = /usr/bin/ansible
+  python version = 2.7.5 (default, Oct 30 2018, 23:45:53) [GCC 4.8.5 20150623 (Red Hat 4.8.5-36)]
+  
+在受控机
+$ python --version
+$ sudo yum update
+
+在控制机上配置受控主机无密码访问
+在控制主机生成SSL密钥对
+$ sudo ssh-keygen
+Your identification has been saved in /root/.ssh/id_rsa.
+Your public key has been saved in /root/.ssh/id_rsa.pub.
+拷贝公钥到受控主机
+$ sudo ssh-copy-id -i /root/.ssh/id_rsa.pub root@192.168.186.144
+Number of key(s) added: 1
+
+Now try logging into the machine, with:   "ssh 'root@192.168.186.144'"
+and check to make sure that only the key(s) you wanted were added.
+同样copy到192.168.186.145
+按照提示尝试无密ssh连接受控机
+$ ssh root@192.168.186.144
+发现开始要密码，因为在控制机上生成SSL密钥对时用的是su，当ssh时读取私钥也需要su
+$ sudo ssh root@192.168.186.144
+成功
+同样也可以在192.168.186.145操作下
+修改ansible主机组配置，修改/etc/ansible/hosts文件，在文件末尾加上
+192.168.186.144
+192.168.186.145
+
+[my-test-service]
+192.168.186.144
+192.168.186.145
+在控制机上
+$ sudo ansible my-test-service -m ping
+192.168.186.145 | SUCCESS => {
+    "changed": false, 
+    "ping": "pong"
+}
+192.168.186.144 | SUCCESS => {
+    "changed": false, 
+    "ping": "pong"
+}
+$ sudo ansible my-test-service -m command -a "ifconfig"
+192.168.186.145 | SUCCESS | rc=0 >>
+ens33: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.186.145  netmask 255.255.255.0  broadcast 192.168.186.255
+        inet6 fe80::b363:a046:6ea1:edb3  prefixlen 64  scopeid 0x20<link>
+        ether 00:50:56:3e:7f:ee  txqueuelen 1000  (Ethernet)
+        RX packets 351  bytes 146119 (142.6 KiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 262  bytes 36858 (35.9 KiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+        inet6 ::1  prefixlen 128  scopeid 0x10<host>
+        loop  txqueuelen 1000  (Local Loopback)
+        RX packets 0  bytes 0 (0.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 0  bytes 0 (0.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+virbr0: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
+        inet 192.168.122.1  netmask 255.255.255.0  broadcast 192.168.122.255
+        ether 52:54:00:a0:ef:23  txqueuelen 1000  (Ethernet)
+        RX packets 0  bytes 0 (0.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 0  bytes 0 (0.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+192.168.186.144 | SUCCESS | rc=0 >>
+ens33: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.186.144  netmask 255.255.255.0  broadcast 192.168.186.255
+        inet6 fe80::3736:dd40:d7f7:384c  prefixlen 64  scopeid 0x20<link>
+        inet6 fe80::b363:a046:6ea1:edb3  prefixlen 64  scopeid 0x20<link>
+        ether 00:50:56:20:d7:d8  txqueuelen 1000  (Ethernet)
+        RX packets 246  bytes 127963 (124.9 KiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 200  bytes 24949 (24.3 KiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+        inet6 ::1  prefixlen 128  scopeid 0x10<host>
+        loop  txqueuelen 1000  (Local Loopback)
+        RX packets 0  bytes 0 (0.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 0  bytes 0 (0.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+virbr0: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
+        inet 192.168.122.1  netmask 255.255.255.0  broadcast 192.168.122.255
+        ether 52:54:00:a0:ef:23  txqueuelen 1000  (Ethernet)
+        RX packets 0  bytes 0 (0.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 0  bytes 0 (0.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+$ sudo ansible my-test-service -m copy -a 'src=/home/yong/Desktop/test.log dest=/home/yong'
+[sudo] password for yong: 
+192.168.186.144 | SUCCESS => {
+    "changed": true, 
+    "checksum": "23bb94b1450eec6f1bd76eb217fb7c9afbdc041a", 
+    "dest": "/home/yong/test.log", 
+    "gid": 0, 
+    "group": "root", 
+    "md5sum": "0fc334961012bde6043ddf65aae08e10", 
+    "mode": "0644", 
+    "owner": "root", 
+    "secontext": "unconfined_u:object_r:user_home_t:s0", 
+    "size": 10, 
+    "src": "/root/.ansible/tmp/ansible-tmp-1551084786.16-53189478186883/source", 
+    "state": "file", 
+    "uid": 0
+}
+192.168.186.145 | SUCCESS => {
+    "changed": true, 
+    "checksum": "23bb94b1450eec6f1bd76eb217fb7c9afbdc041a", 
+    "dest": "/home/yong/test.log", 
+    "gid": 0, 
+    "group": "root", 
+    "md5sum": "0fc334961012bde6043ddf65aae08e10", 
+    "mode": "0644", 
+    "owner": "root", 
+    "secontext": "unconfined_u:object_r:user_home_t:s0", 
+    "size": 10, 
+    "src": "/root/.ansible/tmp/ansible-tmp-1551084786.17-71461743996304/source", 
+    "state": "file", 
+    "uid": 0
+}
+到各个受控机桌面上查看文件，果然有了
