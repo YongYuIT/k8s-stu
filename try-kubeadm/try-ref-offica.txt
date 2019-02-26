@@ -110,3 +110,6 @@ $ sudo kubeadm join 192.168.186.131:6443 --token 92lz4d.9fncm254wvcu363s --disco
 	[ERROR Port-10250]: Port 10250 is in use
 	[ERROR FileAvailable--etc-kubernetes-pki-ca.crt]: /etc/kubernetes/pki/ca.crt already exists
 [preflight] If you know what you are doing, you can make a check non-fatal with `--ignore-preflight-errors=...`
+
+########单节点集群失败，直接尝试多节点集群，ref to https://kubernetes.io/docs/setup/independent/high-availability/
+
