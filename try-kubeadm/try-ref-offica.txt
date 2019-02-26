@@ -1,0 +1,61 @@
+########ref to https://kubernetes.io/docs/setup/independent/install-kubeadm/
+
+########Installing kubeadm --> Verify the MAC address and product_uuid are unique for every node
+$ ip link
+ens33: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP mode DEFAULT group default qlen 1000
+    link/ether 00:50:56:22:b6:6f brd ff:ff:ff:ff:ff:ff
+$ sudo cat /sys/class/dmi/id/product_uuid
+7E714D56-0780-61F3-12B8-1AC1C355D92C
+
+########Installing kubeadm -->Check required ports
+可以参照表格https://kubernetes.io/docs/setup/independent/install-kubeadm/#check-required-ports进行配置，这里为了方便，禁用防火墙
+$ sudo systemctl stop firewalld
+$ sudo systemctl disable firewalld
+
+########Installing kubeadm -->Installing runtime
+参照https://kubernetes.io/docs/setup/cri/#docker
+$ sudo yum install yum-utils device-mapper-persistent-data lvm2
+$ sudo yum-config-manager \
+    --add-repo \
+    https://download.docker.com/linux/centos/docker-ce.repo
+$ sudo yum update
+$ sudo yum install docker-ce-18.06.2.ce
+$ sudo mkdir /etc/docker
+$ sudo gedit /etc/docker/daemon.json
+########内容
+{
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m"
+  },
+  "storage-driver": "overlay2",
+  "storage-opts": [
+    "overlay2.override_kernel_check=true"
+  ]
+}
+$ sudo mkdir -p /etc/systemd/system/docker.service.d
+$ sudo systemctl daemon-reload
+$ sudo systemctl restart docker
+
+########Installing kubeadm --> Installing kubeadm, kubelet and kubectl
+$ lsmod | grep br_netfilter
+########如果毛都没有
+$ modprobe br_netfilter
+
+$ sudo gedit /etc/yum.repos.d/kubernetes.repo
+$ sudo setenforce 0
+$ sudo sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
+$ sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
+$ sudo systemctl enable --now kubelet
+
+$ sudo cat /etc/sysctl.d/k8s.conf
+cat: /etc/sysctl.d/k8s.conf: No such file or directory
+$ sudo gedit /etc/sysctl.d/k8s.conf
+########内容
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+$ sudo sysctl --system
+
+########至此安装kube-adm就全部完成了，按照build-record.txt进行后续步骤
+kubeadm join 192.168.186.131:6443 --token sakuif.txge2u4ury0ym4z3 --discovery-token-ca-cert-hash sha256:4ffd53974d26698f6811af508b1b2d343b4d9f5b5f26c539cc2fbe50cbe60e4c
