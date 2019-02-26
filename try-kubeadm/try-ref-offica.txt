@@ -74,7 +74,7 @@ Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
 You can now join any number of machines by running the following on each node
 as root:
 
-  kubeadm join 192.168.186.131:6443 --token 92lz4d.9fncm254wvcu363s --discovery-token-ca-cert-hash sha256:6a5b2bedbe357a214ed64c405af4debb91539b5508f093e328fc3f5ab3b0f5a3
+  kubeadm join 192.168.186.131:6443 --token u72kvu.tl0ya0259tnri6f0 --discovery-token-ca-cert-hash sha256:6ed57eae8284d706bd22ef216932212d9b7ca9e6620b5462ef74d13e73c5acc6
 ########为了可以在非root用户下运行kubectl，执行如下语句
 $ mkdir -p $HOME/.kube
 $ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
