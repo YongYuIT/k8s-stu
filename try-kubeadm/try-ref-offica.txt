@@ -57,10 +57,56 @@ net.bridge.bridge-nf-call-ip6tables = 1
 net.bridge.bridge-nf-call-iptables = 1
 $ sudo sysctl --system
 
-########至此安装kube-adm就全部完成了，按照build-record.txt进行后续步骤
+########至此安装kube-adm就全部完成了，下面尝试建立单节点集群，ref to https://kubernetes.io/docs/setup/independent/create-cluster-kubeadm/
+$ sudo kubeadm init --kubernetes-version=v1.13.0 --pod-network-cidr=10.244.0.0/16
+Your Kubernetes master has initialized successfully!
 
-########在node节点上
-$ sudo swapoff -a
-$ sudo kubeadm join 192.168.186.131:6443 --token o91f5f.19kisrkkazvefy5o --discovery-token-ca-cert-hash sha256:af3119bd30a837a56535f770d449a70f46768383813385c8d1f9865c7c28163d
-########在master节点上
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+You should now deploy a pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+You can now join any number of machines by running the following on each node
+as root:
+
+  kubeadm join 192.168.186.131:6443 --token 92lz4d.9fncm254wvcu363s --discovery-token-ca-cert-hash sha256:6a5b2bedbe357a214ed64c405af4debb91539b5508f093e328fc3f5ab3b0f5a3
+########为了可以在非root用户下运行kubectl，执行如下语句
+$ mkdir -p $HOME/.kube
+$ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+$ sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+########为了使pod间能相互通信，需要安装pod网络通信插件，这里选择flannel
+$ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/a70459be0084506e4ec919aa1c114638878db11b/Documentation/kube-flannel.yml
+
 $ kubectl get node
+NAME                    STATUS   ROLES    AGE     VERSION
+localhost.localdomain   Ready    master   9m11s   v1.13.3
+$ kubectl get pod --all-namespaces
+NAMESPACE     NAME                                            READY   STATUS    RESTARTS   AGE
+kube-system   coredns-86c58d9df4-dpnzn                        1/1     Running   0          8m36s
+kube-system   coredns-86c58d9df4-fwsk6                        1/1     Running   0          8m36s
+kube-system   etcd-localhost.localdomain                      1/1     Running   0          7m37s
+kube-system   kube-apiserver-localhost.localdomain            1/1     Running   0          7m39s
+kube-system   kube-controller-manager-localhost.localdomain   1/1     Running   0          7m35s
+kube-system   kube-flannel-ds-amd64-z2gkc                     1/1     Running   0          22s
+kube-system   kube-proxy-6lqxn                                1/1     Running   0          8m36s
+kube-system   kube-scheduler-localhost.localdomain            1/1     Running   0          7m49s
+
+########默认情况下，不允许在master节点上自建pod，这里尝试建立单节点集群，所以打开此限制
+$ kubectl taint nodes --all node-role.kubernetes.io/master-
+
+########在master所在机器加入node
+$ sudo kubeadm join 192.168.186.131:6443 --token 92lz4d.9fncm254wvcu363s --discovery-token-ca-cert-hash sha256:6a5b2bedbe357a214ed64c405af4debb91539b5508f093e328fc3f5ab3b0f5a3
+[preflight] Running pre-flight checks
+	[WARNING Service-Docker]: docker service is not enabled, please run 'systemctl enable docker.service'
+[preflight] Some fatal errors occurred:
+	[ERROR DirAvailable--etc-kubernetes-manifests]: /etc/kubernetes/manifests is not empty
+	[ERROR FileAvailable--etc-kubernetes-kubelet.conf]: /etc/kubernetes/kubelet.conf already exists
+	[ERROR Port-10250]: Port 10250 is in use
+	[ERROR FileAvailable--etc-kubernetes-pki-ca.crt]: /etc/kubernetes/pki/ca.crt already exists
+[preflight] If you know what you are doing, you can make a check non-fatal with `--ignore-preflight-errors=...`
