@@ -43,7 +43,7 @@ $ lsmod | grep br_netfilter
 ########如果毛都没有
 $ modprobe br_netfilter
 
-$ sudo gedit /etc/yum.repos.d/kubernetes.repo
+$ sudo gedit /etc/yum.repos.d/kubernetes.repo ####上阿里云源 
 $ sudo setenforce 0
 $ sudo sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
 $ sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
@@ -58,4 +58,9 @@ net.bridge.bridge-nf-call-iptables = 1
 $ sudo sysctl --system
 
 ########至此安装kube-adm就全部完成了，按照build-record.txt进行后续步骤
-kubeadm join 192.168.186.131:6443 --token sakuif.txge2u4ury0ym4z3 --discovery-token-ca-cert-hash sha256:4ffd53974d26698f6811af508b1b2d343b4d9f5b5f26c539cc2fbe50cbe60e4c
+
+########在node节点上
+$ sudo swapoff -a
+$ sudo kubeadm join 192.168.186.131:6443 --token o91f5f.19kisrkkazvefy5o --discovery-token-ca-cert-hash sha256:af3119bd30a837a56535f770d449a70f46768383813385c8d1f9865c7c28163d
+########在master节点上
+$ kubectl get node

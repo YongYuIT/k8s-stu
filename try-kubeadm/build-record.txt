@@ -118,6 +118,16 @@ $ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Docum
 $ kubectl get node
 NAME                    STATUS   ROLES    AGE     VERSION
 localhost.localdomain   Ready    master   8m36s   v1.13.3
+$ kubectl get pod --all-namespaces
+NAMESPACE     NAME                                            READY   STATUS    RESTARTS   AGE
+kube-system   coredns-86c58d9df4-h5zm5                        1/1     Running   0          2m59s
+kube-system   coredns-86c58d9df4-wf4s9                        1/1     Running   0          2m59s
+kube-system   etcd-localhost.localdomain                      1/1     Running   0          2m19s
+kube-system   kube-apiserver-localhost.localdomain            1/1     Running   0          2m
+kube-system   kube-controller-manager-localhost.localdomain   1/1     Running   0          2m21s
+kube-system   kube-flannel-ds-amd64-ccjzv                     1/1     Running   0          28s
+kube-system   kube-proxy-jn58v                                1/1     Running   0          2m59s
+kube-system   kube-scheduler-localhost.localdomain            1/1     Running   0          113s
 
 ####open 6443 and 10250 on master machine
 ####open 6443 and 10250 on node machine
