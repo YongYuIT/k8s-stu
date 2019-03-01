@@ -44,3 +44,7 @@ $ kubectl get pod --all-namespaces
 ########怀疑是虚拟机复制的时候product_uuid重复，销毁虚拟机，重新复制，在初次开机的时候，选择“已复制虚拟机”
 ########查证，product_uuid不重复
 ########未解决问题
+
+########换ubuntu系统尝试
+
+########ref to https://www.cnblogs.com/heweiblog/p/10072530.html

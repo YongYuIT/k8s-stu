@@ -1,0 +1,92 @@
+########Installing kubeadm -->Check required ports
+$ sudo ufw status
+Status: inactive
+
+########Installing kubeadm -->Installing runtime
+参照https://kubernetes.io/docs/setup/cri/#docker
+
+$ sudo apt-get update
+$ sudo apt-get install apt-transport-https ca-certificates curl software-properties-common
+$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+$ sudo add-apt-repository \
+  "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) \
+  stable"
+$ sudo apt-get install docker-ce=18.06.2~ce~3-0~ubuntu
+
+$ sudo gedit /etc/docker/daemon.json
+########内容
+{
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m"
+  },
+  "storage-driver": "overlay2"
+}
+
+$ sudo mkdir -p /etc/systemd/system/docker.service.d
+$ sudo systemctl daemon-reload
+$ sudo systemctl restart docker
+
+########Installing kubeadm --> Installing kubeadm, kubelet and kubectl
+
+$ sudo apt-get install -y apt-transport-https curl
+$ curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+$ sudo gedit /etc/apt/sources.list.d/kubernetes.list
+########内容
+deb https://apt.kubernetes.io/ kubernetes-xenial main
+
+########或者国内的源
+$ curl -s https://raw.githubusercontent.com/EagleChen/kubernetes_init/master/kube_apt_key.gpg | sudo apt-key add -
+$ sudo gedit /etc/apt/sources.list.d/kubernetes.list
+########内容
+deb [arch=amd64] https://mirrors.ustc.edu.cn/kubernetes/apt kubernetes-xenial main
+
+$ sudo apt-get update
+########若国内源出现
+W: GPG error: https://mirrors.ustc.edu.cn/kubernetes/apt kubernetes-xenial InRelease: The following signatures couldn't be verified because the public key is not available: NO_PUBKEY 6A030B21BA07F4FB
+E: The repository 'https://mirrors.ustc.edu.cn/kubernetes/apt kubernetes-xenial InRelease' is not signed.
+$ gpg --keyserver keyserver.ubuntu.com --recv-keys 6A030B21BA07F4FB
+$ gpg -a --export 6A030B21BA07F4FB | sudo apt-key add -
+
+$ sudo apt-get install -y kubelet kubeadm kubectl
+$ sudo apt-mark hold kubelet kubeadm kubectl
+
+########启动集群
+$ kubelet --version
+Kubernetes v1.13.3
+$ sudo swapoff -a
+$ sudo docker pull mirrorgooglecontainers/kube-apiserver:v1.13.3
+$ sudo docker pull mirrorgooglecontainers/kube-controller-manager:v1.13.3
+$ sudo docker pull mirrorgooglecontainers/kube-scheduler:v1.13.3
+$ sudo docker pull mirrorgooglecontainers/kube-proxy:v1.13.3
+$ sudo docker pull mirrorgooglecontainers/pause:3.1
+$ sudo docker pull mirrorgooglecontainers/etcd:3.2.24
+$ sudo docker pull coredns/coredns:1.2.6
+$ sudo docker images | grep v1.13.3
+mirrorgooglecontainers/kube-controller-manager   v1.13.3             0482f6400933        3 weeks ago         146MB
+mirrorgooglecontainers/kube-apiserver            v1.13.3             fe242e556a99        3 weeks ago         181MB
+mirrorgooglecontainers/kube-proxy                v1.13.3             98db19758ad4        3 weeks ago         80.3MB
+mirrorgooglecontainers/kube-scheduler            v1.13.3             3a6f709e97a0        3 weeks ago         79.6MB
+$ sudo docker tag 98db19758ad4 k8s.gcr.io/kube-proxy:v1.13.3
+$ sudo docker tag 0482f6400933 k8s.gcr.io/kube-controller-manager:v1.13.3
+$ sudo docker tag 3a6f709e97a0 k8s.gcr.io/kube-scheduler:v1.13.3
+$ sudo docker tag fe242e556a99 k8s.gcr.io/kube-apiserver:v1.13.3
+$ sudo docker tag f59dcacceff4 k8s.gcr.io/coredns:1.2.6
+$ sudo docker tag 3cab8e1b9802 k8s.gcr.io/etcd:3.2.24
+$ sudo docker tag da86e6ba6ca1 k8s.gcr.io/pause:3.1
+$ sudo kubeadm init --kubernetes-version=v1.13.3 --pod-network-cidr=10.244.0.0/16
+kubeadm join 192.168.186.151:6443 --token o1hppe.y7zje7rdalb5yb0x --discovery-token-ca-cert-hash sha256:577f69b375c3ba43bd30f2bcae569c5992ac04319e7befe3b209638e960ec49e
+
+########为了可以在非root用户下运行kubectl，执行如下语句
+$ mkdir -p $HOME/.kube
+$ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+$ sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+########为了使pod间能相互通信，需要安装pod网络通信插件，这里选择flannel
+$ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/a70459be0084506e4ec919aa1c114638878db11b/Documentation/kube-flannel.yml
+
+########node加入，在另一台机器上
+$ sudo kubeadm join 192.168.186.151:6443 --token o1hppe.y7zje7rdalb5yb0x --discovery-token-ca-cert-hash sha256:577f69b375c3ba43bd30f2bcae569c5992ac04319e7befe3b209638e960ec49e
