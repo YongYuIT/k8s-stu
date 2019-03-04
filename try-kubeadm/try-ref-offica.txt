@@ -58,7 +58,8 @@ net.bridge.bridge-nf-call-iptables = 1
 $ sudo sysctl --system
 
 ########至此安装kube-adm就全部完成了，下面尝试建立单节点集群，ref to https://kubernetes.io/docs/setup/independent/create-cluster-kubeadm/
-$ sudo kubeadm init --kubernetes-version=v1.13.0 --pod-network-cidr=10.244.0.0/16
+$ sudo swapoff -a
+$ sudo kubeadm init --kubernetes-version=v1.13.3 --pod-network-cidr=10.244.0.0/16
 Your Kubernetes master has initialized successfully!
 
 To start using your cluster, you need to run the following as a regular user:

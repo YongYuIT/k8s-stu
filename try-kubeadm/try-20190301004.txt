@@ -1,0 +1,36 @@
+尝试换掉flannel，前面步骤参照try-ref-offica.txt
+$ sudo systemctl stop firewalld
+$ sudo systemctl disable firewalld
+$ sudo systemctl daemon-reload
+$ sudo systemctl restart docker
+$ sudo setenforce 0
+$ sudo sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
+$ sudo systemctl enable --now kubelet
+$ sudo sysctl --system
+$ sudo swapoff -a
+
+$ sudo kubeadm init --pod-network-cidr=192.168.0.0/16 --kubernetes-version=v1.13.3
+kubeadm join 192.168.186.131:6443 --token 4hwfax.qsazxpr717zfdxzr --discovery-token-ca-cert-hash sha256:bb258b1de40b154873dcb9ad42a78b157a6f24914312ea511fc4d5c8b588363d
+$ mkdir -p $HOME/.kube
+$ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+$ sudo chown $(id -u):$(id -g) $HOME/.kube/config
+$ kubectl apply -f https://docs.projectcalico.org/v3.3/getting-started/kubernetes/installation/hosted/rbac-kdd.yaml
+$ kubectl apply -f https://docs.projectcalico.org/v3.3/getting-started/kubernetes/installation/hosted/kubernetes-datastore/calico-networking/1.7/calico.yaml
+$ kubectl get pod --all-namespaces
+NAMESPACE     NAME                                            READY   STATUS    RESTARTS   AGE
+kube-system   calico-node-tsnst                               2/2     Running   0          26s
+kube-system   coredns-86c58d9df4-clmbj                        1/1     Running   0          58s
+kube-system   coredns-86c58d9df4-d2zvl                        1/1     Running   0          58s
+kube-system   etcd-localhost.localdomain                      1/1     Running   0          7s
+kube-system   kube-apiserver-localhost.localdomain            1/1     Running   0          16s
+kube-system   kube-controller-manager-localhost.localdomain   1/1     Running   0          7s
+kube-system   kube-proxy-dp68f                                1/1     Running   0          58s
+kube-system   kube-scheduler-localhost.localdomain            1/1     Running   0          7s
+$ kubectl describe pod etcd-localhost.localdomain -n kube-system
+$ kubectl describe pod kube-scheduler-localhost.localdomain -n kube-system
+$ kubectl describe pod kube-controller-manager-localhost.localdomain -n kube-system
+$ kubectl describe pod kube-apiserver-localhost.localdomain -n kube-system
+$ kubectl get svc --all-namespaces
+$ kubectl describe svc kubernetes -n default
+
+$ sudo kubeadm join 192.168.186.131:6443 --token v1vmnk.ntdsgm56r5adfpzy --discovery-token-ca-cert-hash sha256:cc2a3314678613ae4d2e24b0199ba1371d3367a9fb2e558ca69658239ff8eed5

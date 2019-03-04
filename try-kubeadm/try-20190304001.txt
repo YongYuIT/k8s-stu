@@ -1,0 +1,10 @@
+换其他版本试试
+$ sudo rm -rf /etc/yum.repos.d/kubernetes.repo
+$ sudo mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.back20190304001
+$ wget http://mirrors.163.com/.help/CentOS7-Base-163.repo
+$ sudo mv CentOS7-Base-163.repo /etc/yum.repos.d/CentOS-Base.repo
+$ yum clean all
+$ yum makecache
+
+$ sudo yum remove kubeadm
+$ sudo yum list | grep kubeadm

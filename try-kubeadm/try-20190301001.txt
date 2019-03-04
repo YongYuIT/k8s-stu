@@ -1,0 +1,5 @@
+ref to  https://github.com/cookcodeblog/k8s-deploy
+
+$ git clone https://github.com/cookcodeblog/k8s-deploy.git
+$ chmod u+x *.sh
+$ ./kubeadm_init_master.sh
