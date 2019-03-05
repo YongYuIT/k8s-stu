@@ -1,0 +1,58 @@
+$ sudo wget -O /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo
+$ sudo yum clean all
+$ sudo yum makecache
+$ sudo yum update -y
+$ sudo yum install docker
+
+$ sudo systemctl enable docker
+$ sudo systemctl start docker
+
+$ sudo docker run -p 5000:5000 registry
+$ sudo docker ps
+[sudo] password for yong: 
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                    NAMES
+d1ed40976873        registry            "/entrypoint.sh /e..."   17 seconds ago      Up 17 seconds       0.0.0.0:5000->5000/tcp   blissful_pasteur
+$ sudo docker pull coredns/coredns:1.2.6
+$ sudo docker images
+REPOSITORY                  TAG                 IMAGE ID            CREATED             SIZE
+docker.io/registry          latest              d0eed8dad114        4 weeks ago         25.8 MB
+docker.io/coredns/coredns   1.2.6               f59dcacceff4        4 months ago        40 MB
+$ ifconfig
+192.168.186.159
+$ sudo docker tag coredns/coredns:1.2.6 192.168.186.159:5000/coredns
+$ sudo docker images
+REPOSITORY                  TAG                 IMAGE ID            CREATED             SIZE
+docker.io/registry          latest              d0eed8dad114        4 weeks ago         25.8 MB
+docker.io/coredns/coredns   1.2.6               f59dcacceff4        4 months ago        40 MB
+$ sudo docker tag coredns/coredns:1.2.6 192.168.186.159:5000/coredns:1.2.6
+$ sudo docker images
+REPOSITORY                     TAG                 IMAGE ID            CREATED             SIZE
+docker.io/registry             latest              d0eed8dad114        4 weeks ago         25.8 MB
+192.168.186.159:5000/coredns   latest              f59dcacceff4        4 months ago        40 MB
+docker.io/coredns/coredns      1.2.6               f59dcacceff4        4 months ago        40 MB
+$ sudo docker push  192.168.186.159:5000/coredns:1.2.6
+The push refers to a repository [192.168.186.159:5000/coredns:1.2.6]
+Get https://192.168.186.159:5000/v1/_ping: http: server gave HTTP response to HTTPS client
+$ sudo gedit /etc/docker/daemon.json
+内容-->{ "insecure-registries":["192.168.186.159:5000"] }
+$ sudo systemctl restart docker
+$ sudo docker push  192.168.186.159:5000/coredns:1.2.6
+The push refers to a repository [192.168.186.159:5000/coredns:1.2.6]
+Put http://192.168.186.159:5000/v1/repositories/coredns/: dial tcp 192.168.186.159:5000: connect: connection refused
+$ sudo gedit /etc/sysconfig/docker
+内容-->OPTIONS='--selinux-enabled --insecure-registry 192.168.186.159:5000'
+$ sudo docker run -p 5000:5000 registry
+$ sudo docker push  192.168.186.159:5000/coredns:1.2.6
+The push refers to a repository [192.168.186.159:5000/coredns:1.2.6]
+30a6f49aa944: Pushed 
+9198eadacc0a: Pushed 
+latest: digest: sha256:0e7e5387c73f4898a7251d91f27297d3a5b210421a0b234302276feb8b264a27 size: 739
+
+从客户机
+$ sudo docker pull 192.168.186.159:5000/coredns:1.2.6
+Error response from daemon: Get https://192.168.186.159:5000/v2/: http: server gave HTTP response to HTTPS client
+$ sudo gedit /etc/docker/daemon.json
+内容-->{ "insecure-registries":["192.168.186.159:5000"] }
+$ sudo systemctl restart docker
+$ sudo docker pull 192.168.186.159:5000/coredns:1.2.6
+$ sudo docker images | grep 192.168.186.159
