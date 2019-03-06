@@ -1,0 +1,58 @@
+参考https://www.kubernetes.org.cn/5012.html
+
+修改host文件
+$ sudo gedit /etc/hosts
+添加 172.16.0.180   K8s
+
+关闭防火墙，禁止SELinux
+$ sudo sed -i 's/SELINUX=*/SELINUX=disabled/' /etc/selinux/config
+$ sudo systemctl disable firewalld && sudo systemctl stop firewalld
+
+关闭Swap交换分区
+$ sudo swapoff -a
+$ sudo echo "vm.swappiness=0" >> /etc/sysctl.conf
+$ sudo sysctl -p 
+$ sudo free –h
+
+SSH设置
+$ sudo ssh-keygen -t rsa -N ""
+# cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+
+更新内核
+$ sudo rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
+$ sudo rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-3.el7.elrepo.noarch.rpm
+$ sudo yum --enablerepo=elrepo-kernel install -y kernel-lt kernel-lt-devel
+$ sudo grub2-set-default 0
+$ sudo reboot
+
+调整网络设置
+$ sudo iptables -P FORWARD ACCEPT
+$ vim /etc/sysctl.conf
+net.bridge.bridge-nf-call-iptables = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+$ sudo sysctl -p
+
+安装kubespray
+$ sudo yum -y install epel-release
+$ sudo yum clean all && yum makecache
+$ sudo yum install -y python-pip python34 python-netaddr python34-pip ansible git
+$ git clone https://github.com/kubernetes-sigs/kubespray
+$ cd kubespray
+$ pip install -r requirements.txt
+$ cp -rfp inventory/sample inventory/mycluster
+
+配置集群
+$ gedit inventory/mycluster/hosts.ini
+
+[all]
+k8s ansible_host=k8s ip=172.16.0.180
+[kube-master]
+k8s
+[etcd]
+k8s
+[kube-node]
+k8s
+[k8s-cluster:children]
+kube-master
+kube-node
+[calico-rr]
