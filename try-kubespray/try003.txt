@@ -1,0 +1,102 @@
+机器配置
+
+node1:192.168.186.161
+node2:192.168.186.160
+node3:192.168.186.131
+
+在node1上配置ssh
+$ sudo ssh-keygen
+$ sudo ssh-copy-id -i /root/.ssh/id_rsa.pub root@192.168.186.161
+$ sudo ssh-copy-id -i /root/.ssh/id_rsa.pub root@192.168.186.160
+$ sudo ssh-copy-id -i /root/.ssh/id_rsa.pub root@192.168.186.131
+测试ssh
+$ sudo ssh root@192.168.186.161
+$ sudo ssh root@192.168.186.160
+$ sudo ssh root@192.168.186.131
+均可免密登陆
+
+在node1上安装kubespray环境
+$ sudo yum -y install epel-release
+$ sudo yum clean all && sudo yum makecache
+$ sudo yum install -y python-pip python34 python-netaddr python34-pip ansible git
+$ git clone https://github.com/kubernetes-sigs/kubespray
+$ cd kubespray
+$ sudo pip install -r requirements.txt
+
+生成inventory文件
+$ cp -rfp inventory/sample inventory/testcluster
+$ declare -a IPS=(192.168.186.161 192.168.186.160 192.168.186.131)
+$ CONFIG_FILE=inventory/testcluster/hosts.ini python3 contrib/inventory_builder/inventory.py ${IPS[@]}
+Traceback (most recent call last):
+  File "contrib/inventory_builder/inventory.py", line 34, in <module>
+    from ruamel.yaml import YAML
+ImportError: No module named 'ruamel'
+解决方案1：参照https://github.com/kubernetes-sigs/kubespray/issues
+$ rm -rf inventory/testcluster
+$ sudo pip3  install -r contrib/inventory_builder/requirements.txt
+$ sudo pip3 install --upgrade pip
+$ cp -rfp inventory/sample inventory/testcluster
+$ declare -a IPS=(192.168.186.161 192.168.186.160 192.168.186.131)
+$ CONFIG_FILE=inventory/testcluster/hosts.yaml python3 contrib/inventory_builder/inventory.py ${IPS[@]}
+$ cat inventory/testcluster/hosts.yaml
+解决方案2：手动编辑inventory/testcluster/hosts.ini，参照https://www.cnblogs.com/ltxdzh/p/10113194.html，如下：
+#########################start
+[all]
+node1 ansible_ssh_host=192.168.186.161 ansible_user=root etcd_member_name=etcd1
+node2 ansible_ssh_host=192.168.186.160 ansible_user=root etcd_member_name=etcd2
+node3 ansible_ssh_host=192.168.186.131 ansible_user=root etcd_member_name=etcd3
+
+[kube-master]
+node1
+node2
+node3
+
+[etcd]
+node1
+node2
+node3
+
+[kube-node]
+node1
+node2
+node3
+
+[k8s-cluster:children]
+kube-master
+kube-node
+#########################end
+本文采用方案2
+
+下载所需资源
+$ ansible-playbook -i inventory/testcluster/hosts.ini cluster.yml -t download -b -v -k
+FAILED! => {"attempts": 4, "changed": false, "cmd": "/usr/bin/docker pull gcr.io/google_containers/cluster-proportional-autoscaler-amd64:1.3.0", "msg": "[Errno 2] No such file or directory", "rc": 2}
+搭建私库，修改roles/download/defaults/main.yml文件，从私库下载镜像
+类似的需要从私库拉镜像的还有
+pause
+etcd
+再试
+$ ansible-playbook -i inventory/testcluster/hosts.ini cluster.yml -t download -b -v -k
+FAILED! => {"attempts": 4, "changed": false, "cmd": "/usr/bin/docker pull 192.168.186.159:5000/cluster-proportional-autoscaler-amd64:1.3.0", "msg": "[Errno 2] No such file or directory", "rc": 2}
+在三个节点上安装docker，并配置可访问私库
+$ sudo yum install yum-utils device-mapper-persistent-data lvm2
+$ sudo yum-config-manager \
+    --add-repo \
+    https://download.docker.com/linux/centos/docker-ce.repo
+$ sudo yum update
+$ sudo yum install docker-ce-18.06.2.ce
+$ sudo mkdir /etc/docker
+$ sudo gedit /etc/docker/daemon.json
+#########################start
+{ "insecure-registries":["192.168.186.159:5000"] }
+#########################end
+$ sudo mkdir -p /etc/systemd/system/docker.service.d
+$ sudo systemctl daemon-reload
+$ sudo systemctl restart docker
+再试
+$ ansible-playbook -i inventory/testcluster/hosts.ini cluster.yml -t download -b -v -k
+FAILED! => {"attempts": 4, "changed": false, "dest": "/tmp/releases/kubeadm", "msg": "Request failed: <urlopen error [Errno 101] Network is unreachable>", "state": "absent", "url": "https://storage.googleapis.com/kubernetes-release/release/v1.13.3/bin/linux/amd64/kubeadm"}
+类似的还有下载https://storage.googleapis.com/kubernetes-release/release/v1.13.3/bin/linux/amd64/hyperkube的时候很慢
+搭建ftp服务器
+修改roles/download/defaults/main.yml文件，下载地址指向ftp服务器
+再试
+$ ansible-playbook -i inventory/testcluster/hosts.ini cluster.yml -t download -b -v -k

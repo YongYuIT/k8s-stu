@@ -42,7 +42,7 @@ Put http://192.168.186.159:5000/v1/repositories/coredns/: dial tcp 192.168.186.1
 $ sudo gedit /etc/sysconfig/docker
 内容-->OPTIONS='--selinux-enabled --insecure-registry 192.168.186.159:5000'
 $ sudo docker run -p 5000:5000 registry
-$ sudo docker push  192.168.186.159:5000/coredns:1.2.6
+$ sudo docker push 192.168.186.159:5000/coredns:1.2.6
 The push refers to a repository [192.168.186.159:5000/coredns:1.2.6]
 30a6f49aa944: Pushed 
 9198eadacc0a: Pushed 
