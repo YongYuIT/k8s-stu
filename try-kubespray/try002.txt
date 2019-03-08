@@ -97,6 +97,7 @@ $ netstat -nltp | grep 21
 $ sudo gedit /etc/vsftpd/vsftpd.conf
 $ anonymous_enable=YES #是否允许匿名登陆
 $ sudo service vsftpd restart #pub目录在/var/ftp/pub
+$ sudo chown yong:yong /var/ftp/pub
 
 修改inventory/testcluster/group_vars/k8s-cluster/k8s-cluster.yml中kube_image_repo、kube_service_addresses和kube_pods_subnet的值
 $ gedit inventory/testcluster/group_vars/k8s-cluster/k8s-cluster.yml
