@@ -1,12 +1,10 @@
 https://www.kubernetes.org.cn/5012.html
 
-ip: 192.168.186.131
+ip: 192.168.186.164
 全部在root环境下
 
-192.168.186.164
-
 cat /etc/hosts
-192.168.186.131   K8s
+192.168.186.164   K8s
 
 sed -i 's/SELINUX=*/SELINUX=disabled/' /etc/selinux/config
 systemctl disable firewalld && systemctl stop firewalld
@@ -37,7 +35,7 @@ pip install -r requirements.txt
 cp -rfp inventory/sample inventory/mycluster
 vim inventory/mycluster/hosts.ini
 [all]
-k8s ansible_host=k8s ip=172.16.0.180
+k8s ansible_host=k8s ip=192.168.186.164
 [kube-master]
 k8s
 [etcd]
@@ -57,4 +55,14 @@ vim ./roles/kubernetes-apps/ansible/templates/dashboard.yml.j2
 
 vim ./roles/kubernetes-apps/ansible/templates/coredns-deployment.yml.j2
 
+gedit ./roles/download/defaults/main.yml
+gedit ./inventory/testcluster/group_vars/k8s-cluster/k8s-cluster.yml
+
 ansible-playbook -i inventory/mycluster/hosts.ini cluster.yml -b -v -k
+
+问题：
+fatal: [kubernetes-1]: FAILED! => {
+    "msg": "Timeout (12s) waiting for privilege escalation prompt: "
+}
+解决：
+查看ssh到各node是否可通
