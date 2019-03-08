@@ -1,0 +1,94 @@
+https://jicki.me/kubernetes/docker/2018/12/21/k8s-1.13.1-kubespray/
+ip: 192.168.186.131
+全部在root环境下
+
+ssh-keygen -t rsa -N ""
+Your identification has been saved in /root/.ssh/id_rsa.
+Your public key has been saved in /root/.ssh/id_rsa.pub.
+ssh-copy-id -i /root/.ssh/id_rsa.pub 192.168.186.131
+
+rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
+rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-3.el7.elrepo.noarch.rpm
+yum --enablerepo=elrepo-kernel install -y kernel-lt kernel-lt-devel
+grub2-set-default 0
+reboot
+
+vi /etc/sysctl.conf
+内容-------------------start
+net.bridge.bridge-nf-call-iptables = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+内容-------------------end
+
+rpm -ivh https://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/e/epel-release-7-11.noarch.rpm
+yum clean all && yum makecache
+yum -y install git
+yum install -y python-pip python34 python-netaddr python34-pip ansible
+
+cd /opt/
+git clone https://github.com/kubernetes-sigs/kubespray
+cd /opt/kubespray
+pip install -r requirements.txt
+
+cd /opt/kubespray
+cp -rfp inventory/sample inventory/jicki
+cd /opt/kubespray/inventory/jicki
+rm -rf hosts.ini
+vi hosts.ini
+内容-------------------start
+[all]
+kubernetes-1 ansible_host=192.168.186.131 ansible_port=32 ip=192.168.186.131 etcd_member_name=etcd1
+
+[kube-master]
+kubernetes-1
+
+[etcd]
+kubernetes-1
+
+[kube-node]
+kubernetes-1
+
+[k8s-cluster:children]
+kube-master
+kube-node
+
+[calico-rr]
+内容-------------------end
+
+cd /opt/kubespray/inventory/jicki/group_vars
+rm -rf etcd.yml
+vi etcd.yml
+内容-------------------start
+etcd_compaction_retention: 1
+#etcd_metrics: basic
+# etcd 内存限制 默认 512M
+etcd_memory_limit: "2G"
+# etcd data 文件大小，默认2G
+etcd_quota_backend_bytes: "8G"
+# etcd ssl 认证
+# etcd_peer_client_auth: true
+内容-------------------end
+
+cd /opt/kubespray/inventory/jicki/group_vars/all
+vi all.yml
+内容-------------------start
+loadbalancer_apiserver_localhost: true
+kubelet_load_modules: true
+内容-------------------end
+vi docker.yml
+内容-------------------start
+docker_daemon_graph: "/opt/docker"
+docker_registry_mirrors:
+   - https://registry.docker-cn.com
+   - https://mirror.aliyuncs.com
+内容-------------------end
+
+cd /opt/kubespray
+ansible-playbook -i inventory/jicki/hosts.ini --become --become-user=root cluster.yml -vvv
+
+fatal: [kubernetes-1]: FAILED! => {
+    "msg": "Timeout (12s) waiting for privilege escalation prompt: "
+}
+
+gedit /opt/kubespray/roles/download/defaults/main.yml
+gedit /opt/kubespray/inventory/testcluster/group_vars/k8s-cluster/k8s-cluster.yml
+
