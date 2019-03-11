@@ -1,10 +1,10 @@
 https://www.kubernetes.org.cn/5012.html
 
-ip: 192.168.186.164
+ip: 192.168.186.131
 全部在root环境下
 
 cat /etc/hosts
-192.168.186.164   K8s
+192.168.186.131   K8s
 
 sed -i 's/SELINUX=*/SELINUX=disabled/' /etc/selinux/config
 systemctl disable firewalld && systemctl stop firewalld
@@ -35,7 +35,7 @@ pip install -r requirements.txt
 cp -rfp inventory/sample inventory/mycluster
 vim inventory/mycluster/hosts.ini
 [all]
-k8s ansible_host=k8s ip=192.168.186.164
+k8s ansible_host=k8s ip=192.168.186.131
 [kube-master]
 k8s
 [etcd]

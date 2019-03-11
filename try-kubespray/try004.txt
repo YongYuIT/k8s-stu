@@ -45,7 +45,7 @@ $ sudo gedit /etc/docker/daemon.json
 #########################end
 $ sudo mkdir -p /etc/systemd/system/docker.service.d
 $ sudo systemctl daemon-reload
-$ 
+$ sudo systemctl restart docker
 再试
 $ ansible-playbook -i inventory/testcluster/hosts.ini cluster.yml -t download -b -v -k
 FAILED! => {"attempts": 4, "changed": false, "dest": "/tmp/releases/kubeadm", "msg": "Request failed: <urlopen error [Errno 101] Network is unreachable>", "state": "absent", "url": "https://storage.googleapis.com/kubernetes-release/release/v1.13.3/bin/linux/amd64/kubeadm"}
