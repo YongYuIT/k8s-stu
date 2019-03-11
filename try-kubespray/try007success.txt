@@ -66,3 +66,19 @@ fatal: [kubernetes-1]: FAILED! => {
 }
 解决：
 查看ssh到各node是否可通
+
+kubectl get svc --all-namespaces | grep kubernetes-dashboard
+
+
+#################################################################################
+分析
+#################################################################################
+ansible-playbook -i inventory/mycluster/hosts.ini --become --become-user=root reset.yml
+reset过程中会重启网络，如果网络起不来，可手动打开
+
+还原对./roles/kubernetes-apps/ansible/templates/coredns-deployment.yml.j2的修改---->ok
+还原对./roles/kubernetes-apps/ansible/templates/dashboard.yml.j2的修改---->ok，但是dashboard没映射出来，访问不到
+还原kubelet_load_modules: true，是否加载内核模块，原始设置是未配置---->ok
+还原loadbalancer_apiserver_localhost: true，kube-apiserver负载均衡，是否默认连接到第一台master，默认配置为未配置---->ok
+还原hosts设置---->
+
