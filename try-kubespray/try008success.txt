@@ -1,0 +1,84 @@
+机器：
+
+机器1：192.168.186.167
+机器2：192.168.186.168
+机器3：192.168.186.169
+
+全部在root下
+
+1、三台机器全部：禁止SELinux，禁止防火墙，禁止分区交换，设置路由转发
+sed -i 's/SELINUX=*/SELINUX=disabled/' /etc/selinux/config
+systemctl disable firewalld && systemctl stop firewalld
+swapoff -a && echo "vm.swappiness=0" >> /etc/sysctl.conf && sysctl -p && free –h
+iptables -P FORWARD ACCEPT
+
+2、机器1：配置ssh，使机器1可以ssh机器2，3配置ssh，使机器1可以ssh机器2，3
+ssh-keygen -t rsa -N ""
+ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.186.167
+ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.186.168
+ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.186.169
+
+3、三台机器全部：更新系统内核
+rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
+rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-3.el7.elrepo.noarch.rpm
+yum --enablerepo=elrepo-kernel install -y kernel-lt kernel-lt-devel
+grub2-set-default 0
+reboot
+
+4、三台机器全部：设置内核参数
+vim /etc/sysctl.conf
+net.bridge.bridge-nf-call-iptables = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+sysctl -p
+
+5、在机器1上安装kubespray环境
+yum -y install epel-release
+yum clean all && yum makecache
+yum install -y python-pip python34 python-netaddr python34-pip ansible git
+git clone https://github.com/kubernetes-sigs/kubespray
+cd kubespray
+pip install -r requirements.txt
+
+6、规划集群
+cp -rfp inventory/sample inventory/mycluster
+vim inventory/mycluster/hosts.ini
+[all]
+node1 ansible_host=192.168.186.167 ip=192.168.186.167
+node2 ansible_host=192.168.186.168 ip=192.168.186.168
+node3 ansible_host=192.168.186.169 ip=192.168.186.169
+[kube-master]
+node1
+[etcd]
+node1
+[kube-node]
+node2
+node3
+[k8s-cluster:children]
+kube-master
+kube-node
+[calico-rr]
+
+7、修改仪表盘服务类型
+vim ./roles/kubernetes-apps/ansible/templates/dashboard.yml.j2
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    k8s-app: kubernetes-dashboard
+    kubernetes.io/cluster-service: "true"
+  name: kubernetes-dashboard
+  namespace: kube-system
+spec:
+  ports:
+    - port: 443
+      targetPort: 8443
+  type: NodePort #添加这一句
+  selector:
+
+8、安装并启动
+ansible-playbook -i inventory/mycluster/hosts.ini cluster.yml -b -v -k
+
+9、登陆仪表盘，在master节点上
+kubectl get svc --all-namespaces | grep kubernetes-dashboard
+https://192.168.186.167:30978
+kubectl -n kube-system describe $(kubectl -n kube-system get secret -n kube-system -o name | grep namespace) | grep token
