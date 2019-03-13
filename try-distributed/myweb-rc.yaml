@@ -13,7 +13,7 @@ spec:
     spec:
       containers: ####def of container in Pod
       - name: myweb ####container name
-        image: ubuntu-go-20190219003 ####container img
+        image: 92.168.186.159:5000/ubuntu-go-20190313002 ####container img
         imagePullPolicy: IfNotPresent
         command: ["/go_env/go/bin/go"]
         args: ["run","/Go-Stu20190219001/HttpServer_1/main.go"]
