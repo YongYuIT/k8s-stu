@@ -1,0 +1,32 @@
+ip：192.168.186.170
+
+$ sudo systemctl disable firewalld && systemctl stop firewalld
+$ sudo yum -y install nfs-utils
+$ ss -tnulp | grep 111
+如果没有监听
+$ systemctl start rpcbind
+$ ss -tnulp | grep 111
+
+$ rpm -qa nfs-utils
+$ sudo gedit  /etc/exports
+添加
+/data    192.168.186.0/24(rw,async)
+$ sudo systemctl start nfs
+
+$ rpcinfo -p 192.168.186.170
+$ showmount -e localhost
+
+$ sudo mkdir /data
+$ sudo touch /data/1.txt
+# echo "hello nfs" >> /data/1.txt
+$ sudo chown -R nfsnobody.nfsnobody /data
+
+
+####在客户端测试
+$ sudo yum -y install nfs-utils
+$ showmount -e 192.168.186.170
+$ sudo mount -t nfs 192.168.186.170:/data /mnt
+$ cat /mnt/1.txt
+
+$ sudo systemctl enable nfs-server
+$ sudo systemctl enable rpcbind
