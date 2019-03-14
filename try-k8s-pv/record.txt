@@ -1,0 +1,71 @@
+# kubectl create -f pv.yaml
+# kubectl get persistentvolume
+NAME      CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS      CLAIM   STORAGECLASS   REASON   AGE
+pv-test   1Gi        ROX            Retain           Available                                   15s
+# kubectl create -f pvc.yaml
+# kubectl get persistentvolumeclaim
+NAME       STATUS   VOLUME    CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+pvc-test   Bound    pv-test   1Gi        ROX                           17s
+# kubectl create -f mytest-rc.yaml
+# kubectl get pod
+NAME           READY   STATUS    RESTARTS   AGE
+mytest-xqr7n   1/1     Running   0          3s
+# kubectl describe pod mytest-xqr7n
+Name:               mytest-xqr7n
+Namespace:          default
+Priority:           0
+PriorityClassName:  <none>
+Node:               k8s/192.168.186.131
+Start Time:         Thu, 14 Mar 2019 03:27:52 -0400
+Labels:             app=mytest
+Annotations:        <none>
+Status:             Running
+IP:                 10.233.116.11
+Controlled By:      ReplicationController/mytest
+Containers:
+  mytest:
+    Container ID:   docker://41698b6a1cc78489c2539b40a5bbd28429b1be0d5cb35ce68a4362b6c8e6d140
+    Image:          192.168.186.159:5000/ubuntu-go-20190313002
+    Image ID:       docker-pullable://192.168.186.159:5000/ubuntu-go-20190313002@sha256:6937158db0d05c03cb79543025b00eb4ed14ac4a2d18d0275a9a7ddec628f2cd
+    Port:           <none>
+    Host Port:      <none>
+    State:          Running
+      Started:      Thu, 14 Mar 2019 03:27:53 -0400
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /test/my-pvc from my-pvc (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-4g4rk (ro)
+Conditions:
+  Type              Status
+  Initialized       True 
+  Ready             True 
+  ContainersReady   True 
+  PodScheduled      True 
+Volumes:
+  my-pvc:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  pvc-test
+    ReadOnly:   false
+  default-token-4g4rk:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  default-token-4g4rk
+    Optional:    false
+QoS Class:       BestEffort
+Node-Selectors:  <none>
+Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
+                 node.kubernetes.io/unreachable:NoExecute for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  42s   default-scheduler  Successfully assigned default/mytest-xqr7n to k8s
+  Normal  Pulled     41s   kubelet, k8s       Container image "192.168.186.159:5000/ubuntu-go-20190313002" already present on machine
+  Normal  Created    41s   kubelet, k8s       Created container
+  Normal  Started    41s   kubelet, k8s       Started container
+# kubectl exec -it mytest-xqr7n -- /bin/bash
+# ls /test/my-pvc
+# cat /test/my-pvc/1.txt 
+hello nfs
+
+
