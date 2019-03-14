@@ -3,7 +3,7 @@ kind: ReplicationController ####type of RC
 metadata:
   name: mytest ####name of RC, unique
 spec:
-  replicas: 1 ####Num of copy for Pod
+  replicas: 2 ####Num of copy for Pod
   selector:
     app: mytest ####expected label for Pod
   template: ####Pod instance

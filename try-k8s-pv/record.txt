@@ -9,28 +9,29 @@ pvc-test   Bound    pv-test   1Gi        ROX                           17s
 # kubectl create -f mytest-rc.yaml
 # kubectl get pod
 NAME           READY   STATUS    RESTARTS   AGE
-mytest-xqr7n   1/1     Running   0          3s
-# kubectl describe pod mytest-xqr7n
-Name:               mytest-xqr7n
+mytest-gj6gf   1/1     Running   0          10s
+mytest-znxl5   1/1     Running   0          10s
+# kubectl describe pod mytest-gj6gf
+Name:               mytest-gj6gf
 Namespace:          default
 Priority:           0
 PriorityClassName:  <none>
 Node:               k8s/192.168.186.131
-Start Time:         Thu, 14 Mar 2019 03:27:52 -0400
+Start Time:         Thu, 14 Mar 2019 03:38:38 -0400
 Labels:             app=mytest
 Annotations:        <none>
 Status:             Running
-IP:                 10.233.116.11
+IP:                 10.233.116.13
 Controlled By:      ReplicationController/mytest
 Containers:
   mytest:
-    Container ID:   docker://41698b6a1cc78489c2539b40a5bbd28429b1be0d5cb35ce68a4362b6c8e6d140
+    Container ID:   docker://e82cc6903e31211f19fa44a7d59bfe978b3ed78f70932b78a639ab7c1cc493d9
     Image:          192.168.186.159:5000/ubuntu-go-20190313002
     Image ID:       docker-pullable://192.168.186.159:5000/ubuntu-go-20190313002@sha256:6937158db0d05c03cb79543025b00eb4ed14ac4a2d18d0275a9a7ddec628f2cd
     Port:           <none>
     Host Port:      <none>
     State:          Running
-      Started:      Thu, 14 Mar 2019 03:27:53 -0400
+      Started:      Thu, 14 Mar 2019 03:38:39 -0400
     Ready:          True
     Restart Count:  0
     Environment:    <none>
@@ -59,13 +60,16 @@ Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
 Events:
   Type    Reason     Age   From               Message
   ----    ------     ----  ----               -------
-  Normal  Scheduled  42s   default-scheduler  Successfully assigned default/mytest-xqr7n to k8s
-  Normal  Pulled     41s   kubelet, k8s       Container image "192.168.186.159:5000/ubuntu-go-20190313002" already present on machine
-  Normal  Created    41s   kubelet, k8s       Created container
-  Normal  Started    41s   kubelet, k8s       Started container
-# kubectl exec -it mytest-xqr7n -- /bin/bash
+  Normal  Scheduled  45s   default-scheduler  Successfully assigned default/mytest-gj6gf to k8s
+  Normal  Pulled     44s   kubelet, k8s       Container image "192.168.186.159:5000/ubuntu-go-20190313002" already present on machine
+  Normal  Created    44s   kubelet, k8s       Created container
+  Normal  Started    44s   kubelet, k8s       Started container
+# kubectl exec -it mytest-gj6gf -- /bin/bash
 # ls /test/my-pvc
-# cat /test/my-pvc/1.txt 
+# cat /test/my-pvc/1.txt
 hello nfs
-
+# exit
+# kubectl exec -it mytest-znxl5 -- /bin/bash
+#  cat /test/my-pvc/1.txt
+hello nfs
 
