@@ -36,6 +36,13 @@ Get https://192.168.186.159:5000/v1/_ping: http: server gave HTTP response to HT
 $ sudo gedit /etc/docker/daemon.json
 内容-->{ "insecure-registries":["192.168.186.159:5000"] }
 $ sudo systemctl restart docker
+如果重启docker失败
+Job for docker.service failed because the control process exited with error code. See "systemctl status docker.service" and "journalctl -xe" for details.
+$ sudo gedit /usr/lib/systemd/system/docker.service
+检查EnvironmentFile
+$ sudo gedit /etc/sysconfig/docker
+若insecure-registries冲突，删掉/etc/sysconfig/docker里面关于insecure-registries的配置
+
 $ sudo docker push  192.168.186.159:5000/coredns:1.2.6
 The push refers to a repository [192.168.186.159:5000/coredns:1.2.6]
 Put http://192.168.186.159:5000/v1/repositories/coredns/: dial tcp 192.168.186.159:5000: connect: connection refused

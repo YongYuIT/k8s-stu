@@ -1,8 +1,8 @@
 机器：
 
-机器1：192.168.186.173
-机器2：192.168.186.175
-机器3：192.168.186.176
+机器1：192.168.186.131
+机器2：192.168.186.183
+机器3：192.168.186.184
 
 全部在root下
 
@@ -14,9 +14,9 @@ iptables -P FORWARD ACCEPT
 
 2、机器1：配置ssh，使机器1可以ssh机器2，3配置ssh，使机器1可以ssh机器2，3
 ssh-keygen -t rsa -N ""
-ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.186.173
-ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.186.175
-ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.186.176
+ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.186.131
+ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.186.183
+ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.186.184
 
 3、三台机器全部：更新系统内核
 rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
@@ -43,14 +43,15 @@ pip install -r requirements.txt
 cp -rfp inventory/sample inventory/mycluster
 vim inventory/mycluster/hosts.ini
 [all]
-node1 ansible_host=192.168.186.173 ip=192.168.186.173
-node2 ansible_host=192.168.186.175 ip=192.168.186.175
-node3 ansible_host=192.168.186.176 ip=192.168.186.176
+node1 ansible_host=192.168.186.131 ip=192.168.186.131
+node2 ansible_host=192.168.186.183 ip=192.168.186.183
+node3 ansible_host=192.168.186.184 ip=192.168.186.184
 [kube-master]
 node1
 [etcd]
 node1
 [kube-node]
+node1
 node2
 node3
 [k8s-cluster:children]
@@ -80,5 +81,5 @@ ansible-playbook -i inventory/mycluster/hosts.ini cluster.yml -b -v -k
 
 9、登陆仪表盘，在master节点上
 kubectl get svc --all-namespaces | grep kubernetes-dashboard
-https://192.168.186.173:30978
+https://192.168.186.131:30978
 kubectl -n kube-system describe $(kubectl -n kube-system get secret -n kube-system -o name | grep namespace) | grep token
