@@ -70,6 +70,6 @@ Events:
 hello nfs
 # exit
 # kubectl exec -it mytest-znxl5 -- /bin/bash
-#  cat /test/my-pvc/1.txt
+# cat /test/my-pvc/1.txt
 hello nfs
 
