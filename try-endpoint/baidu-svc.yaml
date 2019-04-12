@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: baidu ####name of Service, unique
+spec:
+  ports:
+    - port: 8888 ####port of service, open to pub
+      targetPort: 80
+      protocol: TCP
