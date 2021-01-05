@@ -1,0 +1,3 @@
+port: service暴露在cluster ip上的端口，供集群内部调用
+targetport: service对集群外暴露的端口，供集群外访问
+nodeport: pod上的端口，流量由外部从targetport流向port，再由port负载分发到nodeport上

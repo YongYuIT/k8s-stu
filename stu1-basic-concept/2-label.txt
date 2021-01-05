@@ -1,0 +1,4 @@
+matchLabels: 根据一组label键值进行筛选
+matchExpressions： 根据一组条件操作进行筛选
+
+如果在selector中同时设置matchLabels和matchExpressions，则需要同时满足matchLabels和matchExpressions的Pod才会被选出
