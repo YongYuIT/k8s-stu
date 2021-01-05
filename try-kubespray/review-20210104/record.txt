@@ -1,0 +1,111 @@
+ref to "try008success.txt"
+
+master: 192.168.186.142
+nodes: 192.168.186.141, 192.168.186.224
+
+1\ config ssh to nodes
+
+ssh-keygen -t rsa -N ""
+ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.186.142
+ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.186.141
+ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.186.224
+
+2\ git clone kubespray script and build cluster
+
+git clone https://github.com/kubernetes-sigs/kubespray
+cd kubespray
+sudo yum -y install epel-release
+sudo yum clean all && yum makecache
+sudo yum install -y python-pip python34 python-netaddr python34-pip
+sudo pip install -r requirements.txt
+
+3\ config cluster and modify dashboard
+
+cp -rfp inventory/sample inventory/mycluster20210104001
+vim inventory/mycluster20210104001/hosts.ini
+[all]
+node1 ansible_host=192.168.186.142 ip=192.168.186.142 ansible_ssh_user='root'
+node2 ansible_host=192.168.186.141 ip=192.168.186.141 ansible_ssh_user='root'
+node3 ansible_host=192.168.186.224 ip=192.168.186.224 ansible_ssh_user='root'
+[kube-master]
+node1
+[etcd]
+node1
+[kube-node]
+node1
+node2
+node3
+[k8s-cluster:children]
+kube-master
+kube-node
+[calico-rr]
+
+vim roles/kubespray-defaults/defaults/main.yaml
+dashboard_enabled: false --> true
+
+vim roles/kubernetes-apps/ansible/templates/dashboard.yml.j2
+add "type: NodePort" to kubernetes-dashboard service
+
+4\ setup cluster and start
+
+ansible-playbook -i inventory/mycluster20210104001/hosts.ini cluster.yml -b -v
+v: for more detial
+b: for become, use sudo run some cmds
+
+if need to reset
+
+ansible-playbook -i inventory/mycluster20210104001/hosts.ini --become --become-user=root reset.yml
+
+
+if "pull k8s.gcr.io/kube-scheduler:v1.19.5 failed", pull from other source(search at dockerhub) and then tag to "kube-scheduler:v1.19.5"
+sudo docker pull aiotceo/kube-scheduler:v1.19.5
+sudo docker tag aiotceo/kube-scheduler:v1.19.5 k8s.gcr.io/kube-scheduler:v1.19.5
+sudo docker images
+REPOSITORY                  TAG                 IMAGE ID            CREATED             SIZE
+aiotceo/kube-scheduler      v1.19.5             350a602e5310        3 weeks ago         45.6MB
+k8s.gcr.io/kube-scheduler   v1.19.5             350a602e5310        3 weeks ago         45.6MB
+
+and then send img file to other nodes
+
+sudo docker save 350a602e5310 > 350a602e5310.tar
+scp 350a602e5310.tar root@192.168.186.141:/home/yong/
+
+to 192.168.186.141
+sudo docker load < 350a602e5310.tar
+sudo docker tag 350a602e5310 k8s.gcr.io/kube-scheduler:v1.19.5
+
+for other images:
+k8s.gcr.io/cpa/cluster-proportional-autoscaler-amd64:1.8.3  -->  docker pull rancher/cluster-proportional-autoscaler:1.8.1-amd64
+k8s.gcr.io/kube-proxy:v1.19.5  -->  docker pull aiotceo/kube-proxy:v1.19.5
+k8s.gcr.io/pause:3.3  -->  docker pull aiotceo/pause:3.3
+k8s.gcr.io/kube-apiserver:v1.19.5  -->  docker pull aiotceo/kube-apiserver:v1.19.5
+k8s.gcr.io/dns/k8s-dns-node-cache:1.16.0  -->  docker pull kubesphere/k8s-dns-node-cache:1.15.12
+k8s.gcr.io/kube-controller-manager:v1.19.5  -->  docker pull aiotceo/kube-controller-manager:v1.19.5
+k8s.gcr.io/coredns:1.7.0  -->  docker pull coredns/coredns:1.7.0
+
+
+TASK [kubernetes/kubeadm : Join to cluster] ***********************************************************************************************************************************************************************
+fatal: [node2]: FAILED! => {"changed": true, "cmd": ["timeout", "-k", "120s", "120s", "/usr/local/bin/kubeadm", "join", "--config", "/etc/kubernetes/kubeadm-client.conf", "--ignore-preflight-errors=DirAvailable--etc-kubernetes-manifests"], "delta": "0:01:00.485070", "end": "2021-01-04 06:11:33.514778", "msg": "non-zero return code", "rc": 1, "start": "2021-01-04 06:10:33.029708", "stderr": "\t[WARNING DirAvailable--etc-kubernetes-manifests]: /etc/kubernetes/manifests is not empty\nerror execution phase preflight: couldn't validate the identity of the API Server: Get \"https://192.168.186.142:6443/api/v1/namespaces/kube-public/configmaps/cluster-info?timeout=10s\": dial tcp 192.168.186.142:6443: connect: no route to host\nTo see the stack trace of this error execute with --v=5 or higher", "stderr_lines": ["\t[WARNING DirAvailable--etc-kubernetes-manifests]: /etc/kubernetes/manifests is not empty", "error execution phase preflight: couldn't validate the identity of the API Server: Get \"https://192.168.186.142:6443/api/v1/namespaces/kube-public/configmaps/cluster-info?timeout=10s\": dial tcp 192.168.186.142:6443: connect: no route to host", "To see the stack trace of this error execute with --v=5 or higher"], "stdout": "[preflight] Running pre-flight checks", "stdout_lines": ["[preflight] Running pre-flight checks"]}
+fatal: [node3]: FAILED! => {"changed": true, "cmd": ["timeout", "-k", "120s", "120s", "/usr/local/bin/kubeadm", "join", "--config", "/etc/kubernetes/kubeadm-client.conf", "--ignore-preflight-errors=DirAvailable--etc-kubernetes-manifests"], "delta": "0:01:00.486883", "end": "2021-01-04 06:11:33.537213", "msg": "non-zero return code", "rc": 1, "start": "2021-01-04 06:10:33.050330", "stderr": "\t[WARNING DirAvailable--etc-kubernetes-manifests]: /etc/kubernetes/manifests is not empty\nerror execution phase preflight: couldn't validate the identity of the API Server: Get \"https://192.168.186.142:6443/api/v1/namespaces/kube-public/configmaps/cluster-info?timeout=10s\": dial tcp 192.168.186.142:6443: connect: no route to host\nTo see the stack trace of this error execute with --v=5 or higher", "stderr_lines": ["\t[WARNING DirAvailable--etc-kubernetes-manifests]: /etc/kubernetes/manifests is not empty", "error execution phase preflight: couldn't validate the identity of the API Server: Get \"https://192.168.186.142:6443/api/v1/namespaces/kube-public/configmaps/cluster-info?timeout=10s\": dial tcp 192.168.186.142:6443: connect: no route to host", "To see the stack trace of this error execute with --v=5 or higher"], "stdout": "[preflight] Running pre-flight checks", "stdout_lines": ["[preflight] Running pre-flight checks"]}
+
+the key err info is "dial tcp 192.168.186.142:6443: connect: no route to host", try to open firewall, just close firewall for simple fix
+systemctl disable firewalld && systemctl stop firewalld
+
+kubectl get svc --all-namespaces
+The connection to the server localhost:8080 was refused - did you specify the right host or port?
+su - root
+
+kubectl get pod --all-namespaces
+kubectl get svc --all-namespaces
+
+NAMESPACE     NAME                        TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)                  AGE
+default       kubernetes                  ClusterIP   10.233.0.1     <none>        443/TCP                  148m
+kube-system   coredns                     ClusterIP   10.233.0.3     <none>        53/UDP,53/TCP,9153/TCP   145m
+kube-system   dashboard-metrics-scraper   ClusterIP   10.233.34.62   <none>        8000/TCP                 139m
+kube-system   kubernetes-dashboard        NodePort    10.233.6.123   <none>        443:31304/TCP            139m
+
+https://192.168.186.142:31304/
+
+kubectl -n kube-system describe $(kubectl -n kube-system get secret -n kube-system -o name | grep namespace) | grep token
+
+
