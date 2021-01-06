@@ -1,3 +1,5 @@
 port: service暴露在cluster ip上的端口，供集群内部调用
 targetport: 容器暴露的端口号，如不指定则默认与port相同
 nodeport: node节点上监听的端口，供集群外部调用，对任意node的nodeport调用可以调通service
+
+nodeport/port --> targetport --> 容器进程
