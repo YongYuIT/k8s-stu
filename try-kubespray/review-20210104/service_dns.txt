@@ -1,0 +1,21 @@
+ref to: k8s_using_private_docker.txt
+
+# kubectl create -f testsvc.yaml
+# kubectl get svc
+NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+kubernetes   ClusterIP   10.233.0.1      <none>        443/TCP    30h
+testsvc      ClusterIP   10.233.21.234   <none>        8080/TCP   3m36s
+
+# kubectl get pod
+NAME               READY   STATUS    RESTARTS   AGE
+testubuntu-5hlmh   1/1     Running   0          6h16m
+testubuntu-cqlrq   1/1     Running   0          6h16m
+testubuntu-jwzsb   1/1     Running   0          6h7m
+# kubectl exec -it testubuntu-5hlmh bash
+# nslookup testsvc
+Server:		169.254.25.10
+Address:	169.254.25.10#53
+
+Name:	testsvc.default.svc.cluster.local
+Address: 10.233.21.234
+
