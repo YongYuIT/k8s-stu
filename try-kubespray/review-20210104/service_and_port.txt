@@ -1,3 +1,0 @@
-ref to: k8s_using_private_docker.txt
-
-# kubectl create -f testsvc.yaml
