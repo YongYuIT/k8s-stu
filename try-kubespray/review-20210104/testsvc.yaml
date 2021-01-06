@@ -1,0 +1,7 @@
+kild: Service
+apiVersion: v1
+metadata:
+	name: testsvc
+spec:
+	ports:
+	- port: 8080
