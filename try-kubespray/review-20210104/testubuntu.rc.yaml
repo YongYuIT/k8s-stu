@@ -3,16 +3,16 @@ kind: ReplicationController ####type of RC
 metadata:
   name: testubuntu ####name of RC, unique
 spec:
-  replicas: 2 ####Num of copy for Pod
+  replicas: 3 ####Num of copy for Pod
   selector:
-    app: testubuntu_app ####expected label for Pod
+    app: testubuntu-app ####expected label for Pod
   template: ####Pod instance
     metadata:
       labels:
-        app: testubuntu_app ####label for Pod copy
+        app: testubuntu-app ####label for Pod copy
     spec:
       containers: ####def of container in Pod
-        - name: testubuntu_ctn ####container name
-          image: 192.168.186.142:5000/testubuntu ####container img
+        - name: testubuntu-ctn ####container name
+          image: 192.168.186.142:5000/testubuntu:1.0.0 ####container img
           command: [ "bash" ]
           args: [ "-c","while true; do echo hello docker; sleep 2; done" ]

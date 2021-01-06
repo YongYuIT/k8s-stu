@@ -1,0 +1,91 @@
+1\ create rc
+
+# kubectl create -f testubuntu.rc.yaml
+
+####if need delete
+# kubectl delete rc testubuntu
+replicationcontroller "testubuntu" deleted
+
+# kubectl get rc
+NAME         DESIRED   CURRENT   READY   AGE
+testubuntu   3         3         0       12s
+# kubectl get pod
+NAME               READY   STATUS             RESTARTS   AGE
+testubuntu-5hlmh   1/1     Running            0          16s
+testubuntu-cqlrq   1/1     Running            0          16s
+testubuntu-lzh52   0/1     ImagePullBackOff   0          16s
+
+# kubectl describe pod testubuntu-lzh52
+Name:         testubuntu-lzh52
+Namespace:    default
+Priority:     0
+Node:         node3/192.168.186.224
+Start Time:   Tue, 05 Jan 2021 22:32:56 -0500
+Labels:       app=testubuntu-app
+Annotations:  cni.projectcalico.org/podIP: 10.233.92.5/32
+              cni.projectcalico.org/podIPs: 10.233.92.5/32
+Status:       Pending
+IP:           10.233.92.5
+IPs:
+  IP:           10.233.92.5
+Controlled By:  ReplicationController/testubuntu
+Containers:
+  testubuntu-ctn:
+    Container ID:  
+    Image:         192.168.186.142:5000/testubuntu:1.0.0
+    Image ID:      
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      bash
+    Args:
+      -c
+      while true; do echo hello docker; sleep 2; done
+    State:          Waiting
+      Reason:       ErrImagePull
+    Ready:          False
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-jq55q (ro)
+Conditions:
+  Type              Status
+  Initialized       True 
+  Ready             False 
+  ContainersReady   False 
+  PodScheduled      True 
+Volumes:
+  default-token-jq55q:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  default-token-jq55q
+    Optional:    false
+QoS Class:       BestEffort
+Node-Selectors:  <none>
+Tolerations:     node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                 node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                From               Message
+  ----     ------     ----               ----               -------
+  Normal   Scheduled  63s                default-scheduler  Successfully assigned default/testubuntu-lzh52 to node3
+  Normal   Pulling    21s (x3 over 62s)  kubelet            Pulling image "192.168.186.142:5000/testubuntu:1.0.0"
+  Warning  Failed     21s (x3 over 62s)  kubelet            Failed to pull image "192.168.186.142:5000/testubuntu:1.0.0": rpc error: code = Unknown desc = Error response from daemon: Get https://192.168.186.142:5000/v2/: http: server gave HTTP response to HTTPS client
+  Warning  Failed     21s (x3 over 62s)  kubelet            Error: ErrImagePull
+  Normal   BackOff    10s (x4 over 62s)  kubelet            Back-off pulling image "192.168.186.142:5000/testubuntu:1.0.0"
+  Warning  Failed     10s (x4 over 62s)  kubelet            Error: ImagePullBackOff
+
+# ssh root@192.168.186.224
+####modify daemon.json and restart docker ref to "private_docker.txt"
+# kubectl delete pod testubuntu-lzh52
+# kubectl get pod
+NAME               READY   STATUS    RESTARTS   AGE
+testubuntu-5hlmh   1/1     Running   0          8m52s
+testubuntu-cqlrq   1/1     Running   0          8m52s
+testubuntu-jwzsb   1/1     Running   0          9s
+# kubectl get rc
+NAME         DESIRED   CURRENT   READY   AGE
+testubuntu   3         3         3       9m20s
+# kubectl logs testubuntu-5hlmh
+hello docker
+hello docker
+...
+

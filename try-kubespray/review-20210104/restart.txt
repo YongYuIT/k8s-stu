@@ -1,0 +1,4 @@
+1\ check etcd
+
+# etcdctl endpoint health
+# systemctl start etcd.service
