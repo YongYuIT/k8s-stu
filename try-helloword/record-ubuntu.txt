@@ -1,0 +1,5 @@
+#### ref to "record.txt"
+
+#### install k8s
+
+$ sudo
