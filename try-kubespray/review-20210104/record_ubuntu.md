@@ -77,17 +77,53 @@ ansible-playbook -i inventory/mycluster20210207001/inventory.ini cluster.yml -b 
 
 ~~~shell script
 $ sudo kubectl get svc --all-namespaces
-NAMESPACE     NAME                        TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)                  AGE
-default       kubernetes                  ClusterIP   10.233.0.1     <none>        443/TCP                  5m12s
-kube-system   coredns                     ClusterIP   10.233.0.3     <none>        53/UDP,53/TCP,9153/TCP   3m14s
-kube-system   dashboard-metrics-scraper   ClusterIP   10.233.6.146   <none>        8000/TCP                 3m6s
-kube-system   kubernetes-dashboard        NodePort    10.233.34.47   <none>        443:31969/TCP            3m6s
+NAMESPACE     NAME                        TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                  AGE
+default       kubernetes                  ClusterIP   10.233.0.1      <none>        443/TCP                  2m29s
+kube-system   coredns                     ClusterIP   10.233.0.3      <none>        53/UDP,53/TCP,9153/TCP   44s
+kube-system   dashboard-metrics-scraper   ClusterIP   10.233.24.225   <none>        8000/TCP                 38s
+kube-system   kubernetes-dashboard        NodePort    10.233.48.175   <none>        443:31741/TCP            38s
 ~~~
 
 * visit dashboard
-https://192.168.186.140:31969/
+https://192.168.186.140:31741/
 * get token
 ~~~shell script
 sudo kubectl -n kube-system describe $(sudo kubectl -n kube-system get secret -n kube-system -o name | grep namespace) | grep token
+~~~
+
+* or use node2 for visit
+https://192.168.186.143:31741/
+
+success!
+
+
+
+## if hasn't add "type: NodePort" to kubernetes-dashboard service
+
+~~~shell script
+$ sudo kubectl get svc --all-namespaces
+NAMESPACE     NAME                        TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                  AGE
+default       kubernetes                  ClusterIP   10.233.0.1      <none>        443/TCP                  2m38s
+kube-system   coredns                     ClusterIP   10.233.0.3      <none>        53/UDP,53/TCP,9153/TCP   41s
+kube-system   dashboard-metrics-scraper   ClusterIP   10.233.35.9     <none>        8000/TCP                 34s
+kube-system   kubernetes-dashboard        ClusterIP   10.233.57.234   <none>        443/TCP                  34s
+
+$ ifconfig
+tunl0: flags=193<UP,RUNNING,NOARP>  mtu 1440
+        inet 10.233.90.0  netmask 255.255.255.255
+        tunnel   txqueuelen 1000  (IPIP Tunnel)
+        RX packets 107  bytes 9361 (9.3 KB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 161  bytes 16514 (16.5 KB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+~~~
+
+* visit dashboard
+https://10.233.57.234:443/
+
+* get token
+~~~shell script
+$ sudo kubectl -n kube-system describe $(sudo kubectl -n kube-system get secret -n kube-system -o name | grep namespace) | grep token
 ~~~
 
