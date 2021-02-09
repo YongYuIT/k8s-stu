@@ -10,8 +10,9 @@ $ ss -tnulp | grep 111
 $ rpm -qa nfs-utils #查询是否安装
 $ sudo gedit  /etc/exports
 添加
-/data    192.168.186.0/24(rw,async)
+/data    192.168.186.0/24(rw,async,no_root_squash)
 $ sudo systemctl start nfs
+####no_root_squash：当登录 NFS 主机使用共享目录的使用者是 root 时，其权限将被转换成为匿名使用者，通常它的 UID 与 GID，都会变成 nobody 身份
 
 $ rpcinfo -p 192.168.186.170
 $ showmount -e localhost
