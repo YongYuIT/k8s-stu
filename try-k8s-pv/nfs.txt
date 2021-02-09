@@ -7,7 +7,7 @@ $ ss -tnulp | grep 111
 $ systemctl start rpcbind
 $ ss -tnulp | grep 111
 
-$ rpm -qa nfs-utils
+$ rpm -qa nfs-utils #查询是否安装
 $ sudo gedit  /etc/exports
 添加
 /data    192.168.186.0/24(rw,async)
