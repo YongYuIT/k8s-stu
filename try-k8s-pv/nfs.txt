@@ -22,11 +22,20 @@ $ sudo touch /data/1.txt
 $ sudo chown -R nfsnobody.nfsnobody /data
 
 
+####开机自启
+$ sudo systemctl enable nfs-server
+$ sudo systemctl enable rpcbind
+
 ####在客户端测试
 $ sudo yum -y install nfs-utils
 $ showmount -e 192.168.186.170
 $ sudo mount -t nfs 192.168.186.170:/data /mnt
 $ cat /mnt/1.txt
 
-$ sudo systemctl enable nfs-server
-$ sudo systemctl enable rpcbind
+####if uubuntu client test
+$ sudo apt install nfs-common
+$ showmount -e 192.168.186.170
+##if err: clnt_create: RPC: Unable to receive
+##open filewall for client ip
+$ sudo firewall-cmd --permanent --add-rich-rule="rule family="ipv4" source address="192.168.186.140" accept"
+$ sudo firewall-cmd --reload
