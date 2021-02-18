@@ -3,11 +3,23 @@
 * master: ubuntu, 192.168.186.140
 * node: centos, 192.168.186.143
 
+change hosts config for two servers
+
+~~~shell script
+sudo vi /etc/hosts
+~~~
+
+~~~
+192.168.186.140	master
+192.168.186.143	node
+~~~
+
+
 # SSH without passwd
 
 ~~~shell script
-ssh-copy-id -i ~/.ssh/id_rsa.pub yong@192.168.186.143
-ssh yong@192.168.186.143
+ssh-copy-id -i ~/.ssh/id_rsa.pub yong@node
+ssh yong@node
 ~~~
 
 # install kubespray
@@ -38,8 +50,8 @@ modify like follows:
 
 ~~~
 [all]
-node1 ansible_host=192.168.186.140  ip=192.168.186.140 etcd_member_name=etcd1 ansible_ssh_user='yong'
-node2 ansible_host=192.168.186.143  ip=192.168.186.143 ansible_ssh_user='yong' ansible_sudo_pass='111111'
+node1 ansible_host=master etcd_member_name=etcd1 ansible_ssh_user='yong'
+node2 ansible_host=node ansible_ssh_user='yong' ansible_sudo_pass='111111'
 
 [kube-master]
 node1
@@ -85,14 +97,14 @@ kube-system   kubernetes-dashboard        NodePort    10.233.48.175   <none>    
 ~~~
 
 * visit dashboard
-https://192.168.186.140:31741/
+https://master:31741/
 * get token
 ~~~shell script
 sudo kubectl -n kube-system describe $(sudo kubectl -n kube-system get secret -n kube-system -o name | grep namespace) | grep token
 ~~~
 
 * or use node2 for visit
-https://192.168.186.143:31741/
+https://node:31741/
 
 success!
 

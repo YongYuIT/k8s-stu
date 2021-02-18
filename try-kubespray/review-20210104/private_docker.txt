@@ -1,5 +1,8 @@
 #### for hub
 
+# sudo vi /etc/hosts
+192.168.186.140	master
+
 # docker pull registry
 # docker run -d -p 5000:5000 registry
 # docker ps | grep registry
@@ -10,34 +13,37 @@ b727fbc37b64        registry                      "/entrypoint.sh /etc…"   7 s
 # docker images | grep ubuntu
 ubuntu                                                 latest              f643c72bc252        5 weeks ago         72.9MB
 
-# docker tag ubuntu 192.168.186.142:5000/testubuntu:1.0.0
+# docker tag ubuntu master:5000/testubuntu:1.0.0
 # docker images | grep ubuntu
-192.168.186.142:5000/testubuntu                        1.0.0               f643c72bc252        5 weeks ago         72.9MB
+master:5000/testubuntu                        1.0.0               f643c72bc252        5 weeks ago         72.9MB
 ubuntu                                                 latest              f643c72bc252        5 weeks ago         72.9MB
 
 # ifconfig
-192.168.186.142
+master
 #### modify /etc/docker/daemon.json
 {
-  "insecure-registries":["192.168.186.142:5000"]
+  "insecure-registries":["master:5000"]
 }
 # systemctl restart docker
 # docker restart b727fbc37b64 
 
-# docker push 192.168.186.142:5000/testubuntu:1.0.0
+# docker push master:5000/testubuntu:1.0.0
 
 
 
 #### for client
 
+# sudo vi /etc/hosts
+192.168.186.140	master
+
 #### modify /etc/docker/daemon.json
 {
-  "insecure-registries":["192.168.186.142:5000"]
+  "insecure-registries":["master:5000"]
 }
 # systemctl restart docker
-# docker pull 192.168.186.142:5000/testubuntu:1.0.0
+# docker pull master:5000/testubuntu:1.0.0
 # docker images | grep ubuntu
-192.168.186.142:5000/testubuntu                        1.0.0               f643c72bc252        5 weeks ago         72.9MB
+master:5000/testubuntu                        1.0.0               f643c72bc252        5 weeks ago         72.9MB
 # docker pull ubuntu
 Using default tag: latest
 latest: Pulling from library/ubuntu
@@ -45,5 +51,5 @@ Digest: sha256:c95a8e48bf88e9849f3e0f723d9f49fa12c5a00cfc6e60d2bc99d87555295e4c
 Status: Downloaded newer image for ubuntu:latest
 docker.io/library/ubuntu:latest
 # docker images | grep ubuntu
-192.168.186.142:5000/testubuntu                        1.0.0               f643c72bc252        5 weeks ago         72.9MB
+master:5000/testubuntu                        1.0.0               f643c72bc252        5 weeks ago         72.9MB
 ubuntu                                                 latest              f643c72bc252        5 weeks ago         72.9MB
