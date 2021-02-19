@@ -91,6 +91,13 @@ fatal: [node3]: FAILED! => {"changed": true, "cmd": ["timeout", "-k", "120s", "1
 the key err info is "dial tcp 192.168.186.142:6443: connect: no route to host", try to open firewall, just close firewall for simple fix
 systemctl disable firewalld && systemctl stop firewalld
 
+if err like:
+[{
+	"changed": false,
+	"msg": "AnsibleError: template error while templating string: expected token '=', got 'end of statement block'. String: KUBE_LOGTOSTDERR=\"--logtostderr=true\"
+	
+just run "sudo pip3 install -r requirements.txt" to update python and python libs for ansible
+
 kubectl get svc --all-namespaces
 The connection to the server localhost:8080 was refused - did you specify the right host or port?
 su - root
