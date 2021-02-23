@@ -28,7 +28,7 @@ master
 # docker restart b727fbc37b64 
 
 # docker push master:5000/testubuntu:1.0.0
-
+# curl -XGET http://master:5000/v2/_catalog
 
 
 #### for client
