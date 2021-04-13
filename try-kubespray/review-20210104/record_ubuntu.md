@@ -39,6 +39,12 @@ $ sudo aptitude install python-pip python3-pip python3
 $ sudo pip3 install -r requirements.txt
 ~~~
 
+if error: No matching distribution found for ansible==2.9.16 (from -r requirements.txt (line 1))
+
+~~~shell script
+pip3 install ansible==2.9.16 -i https://pypi.tuna.tsinghua.edu.cn/simple
+~~~
+
 # config cluster
 
 ~~~shell script
