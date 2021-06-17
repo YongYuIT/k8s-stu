@@ -109,6 +109,7 @@ if err like:
 	"msg": "AnsibleError: template error while templating string: expected token '=', got 'end of statement block'. String: KUBE_LOGTOSTDERR=\"--logtostderr=true\"
 	
 just run "sudo pip3 install -r requirements.txt" to update python and python libs for ansible
+or download Jinja2 pkg and "sudo pip3 install ${Jinja2_pkg}" to update Jinja2 version
 
 kubectl get svc --all-namespaces
 The connection to the server localhost:8080 was refused - did you specify the right host or port?
