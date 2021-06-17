@@ -145,3 +145,20 @@ https://10.233.57.234:443/
 $ sudo kubectl -n kube-system describe $(sudo kubectl -n kube-system get secret -n kube-system -o name | grep namespace) | grep token
 ~~~
 
+## if offline and yum by default is unavailable
+
+~~~shell script
+vim inventory/mycluster20210207001/group_vars/k8s-cluster/offline.yml
+~~~
+
+and modify (ali yum for eg.):
+
+~~~
+...
+yum_repo: "http://mirrors.aliyun.com"
+...
+docker_rh_repo_base_url: "{{ yum_repo }}/docker-ce/linux/centos/$releasever/$basearch/stable/"
+docker_rh_repo_gpgkey: "{{ yum_repo }}/docker-ce/gpg"
+...
+~~~
+
