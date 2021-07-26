@@ -39,6 +39,13 @@ $ sudo aptitude install python-pip python3-pip python3
 $ sudo pip3 install -r requirements.txt
 ~~~
 
+if error: Command "python setup.py egg_info" failed with error code 1 in /tmp/pip-build-McitVN/ruamel.yaml.clib/
+
+~~~shell script
+pip3 install --upgrade pip
+pip3 install paramiko
+~~~
+
 if error: No matching distribution found for ansible==2.9.16 (from -r requirements.txt (line 1))
 
 ~~~shell script
